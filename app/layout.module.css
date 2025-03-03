@@ -56,6 +56,8 @@
   padding: 1.5rem; /* p-6 */
   background-color: #f3f4f6; /* bg-gray-100 */
   margin-left: 16rem; /* ml-64 to match sidebar width */
+  width: calc(100% - 16rem);
+  padding-left: 3rem; /* Increased from 2rem to 3rem for more clearance */
 }
 
 .footer {
