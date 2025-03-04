@@ -30,4 +30,4 @@ export default function BuyPerfumes() {
       </div>
     </div>
   );
-}
+}// Updated comment
