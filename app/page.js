@@ -36,7 +36,7 @@ export default function Dashboard() {
         <div className={styles.card}>
           <h2 className={styles.cardTitle}>This Month's Commission</h2>
           <p className={styles.cardValue}>R0</p>
-          <p className={styles.cardWarning}>Warning: If you do not maintain by the last day of this month, you will forfeit this month's commission</p>
+          <p className={styles.cardWarning}>Warning: If you don’t maintain by the last day of this month, you’ll forfeit this month’s commission</p>
         </div>
       </div>
     </div>
