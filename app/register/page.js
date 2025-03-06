@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from 'react'; // Added useEffect
+import { useState, useEffect } from 'react';
 import styles from './register.module.css';
 import { useRouter } from 'next/navigation';
 
@@ -11,7 +11,6 @@ export default function Register() {
   const router = useRouter();
 
   useEffect(() => {
-    // Clear login state on initial load of register page
     localStorage.setItem('isLoggedIn', 'false');
     window.dispatchEvent(new Event('loginChange'));
   }, []);
