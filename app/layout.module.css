@@ -5,13 +5,14 @@
 
 .sidebar {
   width: 16rem;
-  background-color: #6b21a8; /* Purple! */
+  background-color: #6b21a8;
   color: white;
   padding: 1rem;
   position: fixed;
   height: 100%;
   top: 0;
   left: 0;
+  overflow-y: auto;
 }
 
 .navList {
