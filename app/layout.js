@@ -1,5 +1,3 @@
-// Force Vercel redeploy - 2025-03-07
-
 "use client";
 import { useState, useEffect, createContext, useContext } from 'react';
 import styles from './layout.module.css';
@@ -30,11 +28,13 @@ export default function RootLayout({ children }) {
   }, []);
 
   const handleLogout = () => {
-    localStorage.setItem('isLoggedIn', 'false');
-    localStorage.removeItem('userName');
-    localStorage.removeItem('orders'); // Optional: clear orders
-    window.dispatchEvent(new Event('loginChange'));
-    window.location.href = '/'; // Force reload to root
+    if (confirm('Are you sure you want to logout?')) {
+      localStorage.setItem('isLoggedIn', 'false');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('orders'); // Optional
+      window.dispatchEvent(new Event('loginChange'));
+      window.location.href = '/';
+    }
   };
 
   return (
