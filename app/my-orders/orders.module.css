@@ -42,3 +42,21 @@
   margin-top: 0.5rem;
   color: #6b21a8;
 }
+
+.status {
+  font-size: 0.875rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  margin-left: 0.5rem;
+  display: inline-block;
+}
+
+.status:where([data-status="Pending"]) {
+  background-color: #f59e0b;
+  color: white;
+}
+
+.status:where([data-status="Shipped"]) {
+  background-color: #16a34a;
+  color: white;
+}
