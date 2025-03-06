@@ -27,6 +27,14 @@ export default function RootLayout({ children }) {
     };
   }, []);
 
+  const handleLogout = () => {
+    localStorage.setItem('isLoggedIn', 'false');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('orders'); // Optional: clear orders
+    window.dispatchEvent(new Event('loginChange'));
+    window.location.href = '/'; // Force reload to root
+  };
+
   return (
     <html lang="en">
       <body>
@@ -54,6 +62,14 @@ export default function RootLayout({ children }) {
                   <li><Link href="/miscellaneous">Miscellaneous</Link></li>
                   <li><Link href="/create-ticket">Create Ticket</Link></li>
                   <li><Link href="/my-tickets">My Tickets</Link></li>
+                  <li>
+                    <button
+                      onClick={handleLogout}
+                      className={styles.logoutButton}
+                    >
+                      Logout
+                    </button>
+                  </li>
                 </ul>
               </nav>
             )}
