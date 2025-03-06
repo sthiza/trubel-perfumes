@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import styles from './buyPerfumes.module.css';
+import { useRouter } from 'next/navigation';
 
 const perfumes = [
   { id: 1, name: 'Perfume 1', price: 'R150', image: '/perfume1.jpg' },
@@ -11,6 +12,7 @@ const perfumes = [
 
 export default function BuyPerfumes() {
   const [cart, setCart] = useState([]);
+  const router = useRouter();
 
   const addToCart = (perfume) => {
     setCart((prevCart) => {
@@ -26,6 +28,18 @@ export default function BuyPerfumes() {
 
   const removeFromCart = (id) => {
     setCart((prevCart) => prevCart.filter((item) => item.id !== id));
+  };
+
+  const handleCheckout = () => {
+    if (cart.length === 0) {
+      alert('Your cart is empty—add some perfumes first!');
+      return;
+    }
+    // Mock checkout—later integrate real payment
+    const total = cart.reduce((sum, item) => sum + parseFloat(item.price.slice(1)) * item.quantity, 0).toFixed(2);
+    alert(`Checkout successful! Total: R${total}. Thanks for shopping!`);
+    setCart([]); // Clear cart
+    router.push('/my-orders'); // Redirect to orders
   };
 
   return (
@@ -72,6 +86,12 @@ export default function BuyPerfumes() {
           <p className={styles.cartTotal}>
             Total: R{cart.reduce((sum, item) => sum + parseFloat(item.price.slice(1)) * item.quantity, 0).toFixed(2)}
           </p>
+          <button
+            onClick={handleCheckout}
+            className={styles.checkoutButton}
+          >
+            Checkout
+          </button>
         </div>
       )}
     </div>
