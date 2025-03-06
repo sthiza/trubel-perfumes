@@ -1,3 +1,5 @@
+// Force Vercel redeploy - 2025-03-07
+
 "use client";
 import { useState, useEffect, createContext, useContext } from 'react';
 import styles from './layout.module.css';
