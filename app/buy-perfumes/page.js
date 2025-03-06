@@ -5,9 +5,9 @@ import styles from './buyPerfumes.module.css';
 import { useRouter } from 'next/navigation';
 
 const perfumes = [
-  { id: 1, name: 'Perfume 1', price: 'R150', image: '/perfume1.jpg' },
-  { id: 2, name: 'Perfume 2', price: 'R200', image: '/perfume2.jpg' },
-  { id: 3, name: 'Perfume 3', price: 'R180', image: '/perfume3.jpg' },
+  { id: 1, name: 'Perfume 1', price: 'R150', image: '/Perfume1.jpg' }, // Capitalized
+  { id: 2, name: 'Perfume 2', price: 'R200', image: '/Perfume2.jpg' },
+  { id: 3, name: 'Perfume 3', price: 'R180', image: '/Perfume3.jpg' },
 ];
 
 export default function BuyPerfumes() {
@@ -35,11 +35,18 @@ export default function BuyPerfumes() {
       alert('Your cart is empty—add some perfumes first!');
       return;
     }
-    // Mock checkout—later integrate real payment
     const total = cart.reduce((sum, item) => sum + parseFloat(item.price.slice(1)) * item.quantity, 0).toFixed(2);
+    const order = {
+      id: Date.now(),
+      date: new Date().toISOString().split('T')[0],
+      items: cart.map((item) => `${item.name} x ${item.quantity}`),
+      total: `R${total}`,
+    };
+    const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+    localStorage.setItem('orders', JSON.stringify([...existingOrders, order]));
     alert(`Checkout successful! Total: R${total}. Thanks for shopping!`);
-    setCart([]); // Clear cart
-    router.push('/my-orders'); // Redirect to orders
+    setCart([]);
+    router.push('/my-orders');
   };
 
   return (
