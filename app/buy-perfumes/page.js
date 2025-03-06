@@ -5,7 +5,7 @@ import styles from './buyPerfumes.module.css';
 import { useRouter } from 'next/navigation';
 
 const perfumes = [
-  { id: 1, name: 'Perfume 1', price: 'R150', image: '/Perfume1.jpg' }, // Capitalized
+  { id: 1, name: 'Perfume 1', price: 'R150', image: '/Perfume1.jpg' },
   { id: 2, name: 'Perfume 2', price: 'R200', image: '/Perfume2.jpg' },
   { id: 3, name: 'Perfume 3', price: 'R180', image: '/Perfume3.jpg' },
 ];
@@ -41,6 +41,7 @@ export default function BuyPerfumes() {
       date: new Date().toISOString().split('T')[0],
       items: cart.map((item) => `${item.name} x ${item.quantity}`),
       total: `R${total}`,
+      status: 'Pending'
     };
     const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
     localStorage.setItem('orders', JSON.stringify([...existingOrders, order]));
