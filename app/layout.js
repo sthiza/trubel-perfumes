@@ -1,82 +1,81 @@
-import { Inter } from 'next/font/google';
-import { FaHome, FaShoppingCart, FaList, FaUsers, FaCog, FaTicketAlt, FaSignOutAlt } from 'react-icons/fa';
+"use client";
+import { useState, useEffect, createContext, useContext } from 'react';
 import Link from 'next/link';
-import styles from './layout.module.css';
 
-const inter = Inter({ subsets: ['latin'] });
+export const AuthContext = createContext();
+
+export function useAuth() {
+  return useContext(AuthContext);
+}
 
 export default function RootLayout({ children }) {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    setIsLoggedIn(loggedIn);
+    const handleLoginChange = () => {
+      const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      setIsLoggedIn(loggedIn);
+    };
+    window.addEventListener('loginChange', handleLoginChange);
+    window.addEventListener('storage', handleLoginChange);
+    return () => {
+      window.removeEventListener('loginChange', handleLoginChange);
+      window.removeEventListener('storage', handleLoginChange);
+    };
+  }, []);
+
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <div className={styles.container}>
-          <aside className={styles.sidebar}>
-            <div className={styles.sidebarHeader}>Trubel Perfumes</div>
-            <nav>
-              <ul className={styles.navList}>
-                <li className={styles.navItem}>
-                  <Link href="/" className={styles.navLink}><FaHome className="mr-2" /> Dashboard</Link>
-                </li>
-                <li className={styles.navItem}>
-                  <Link href="/buy-perfumes" className={styles.navLink}><FaShoppingCart className="mr-2" /> Buy Perfume(s)</Link>
-                </li>
-                <li className={styles.navItem}>
-                  <Link href="/my-orders" className={styles.navLink}><FaList className="mr-2" /> My Orders</Link>
-                </li>
-                <li className={styles.navDivider}>My Network</li>
-                <li className={styles.navSubItem}>
-                  <Link href="/my-network/first-gen" className={styles.navLink}><FaUsers className="mr-2" /> First Gen</Link>
-                </li>
-                <li className={styles.navSubItem}>
-                  <Link href="/my-network/gen-2" className={styles.navLink}><FaUsers className="mr-2" /> Generation 2</Link>
-                </li>
-                <li className={styles.navSubItem}>
-                  <Link href="/my-network/gen-3" className={styles.navLink}><FaUsers className="mr-2" /> Generation 3</Link>
-                </li>
-                <li className={styles.navSubItem}>
-                  <Link href="/my-network/gen-4" className={styles.navLink}><FaUsers className="mr-2" /> Generation 4</Link>
-                </li>
-                <li className={styles.navSubItem}>
-                  <Link href="/my-network/gen-5" className={styles.navLink}><FaUsers className="mr-2" /> Generation 5</Link>
-                </li>
-                <li className={styles.navDivider}>My Office</li>
-                <li className={styles.navSubItem}>
-                  <Link href="/my-office/team-commissions" className={styles.navLink}><FaCog className="mr-2" /> Team Commissions</Link>
-                </li>
-                <li className={styles.navSubItem}>
-                  <Link href="/my-office/team-rankings" className={styles.navLink}><FaCog className="mr-2" /> Team Rankings</Link>
-                </li>
-                <li className={styles.navSubItem}>
-                  <Link href="/my-office/team-sales" className={styles.navLink}><FaCog className="mr-2" /> Team Sales</Link>
-                </li>
-                <li className={styles.navSubItem}>
-                  <Link href="/my-office/team-recruitment" className={styles.navLink}><FaCog className="mr-2" /> Team Recruitment</Link>
-                </li>
-                <li className={styles.navDivider}>Account Maintenance</li>
-                <li className={styles.navSubItem}>
-                  <Link href="/account/profile" className={styles.navLink}><FaCog className="mr-2" /> Account Profile</Link>
-                </li>
-                <li className={styles.navSubItem}>
-                  <Link href="/account/bank-account" className={styles.navLink}><FaCog className="mr-2" /> Bank Account</Link>
-                </li>
-                <li className={styles.navDivider}>Miscellaneous</li>
-                <li className={styles.navSubItem}>
-                  <Link href="/misc/create-ticket" className={styles.navLink}><FaTicketAlt className="mr-2" /> Create Ticket</Link>
-                </li>
-                <li className={styles.navSubItem}>
-                  <Link href="/misc/my-tickets" className={styles.navLink}><FaTicketAlt className="mr-2" /> My Tickets</Link>
-                </li>
-                <li className={styles.navItem}>
-                  <Link href="/signout" className={styles.navLink}><FaSignOutAlt className="mr-2" /> Signout</Link>
-                </li>
-              </ul>
-            </nav>
-          </aside>
-          <main className={styles.main}>
-            {children}
-            <footer className={styles.footer}>Trubel Perfumes (Pty) Ltd © 2025</footer>
-          </main>
-        </div>
+      <body>
+        <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
+          <div style={{ display: 'flex', minHeight: '100vh' }}>
+            {isLoggedIn && (
+              <nav style={{
+                width: '16rem',
+                backgroundColor: '#6b21a8',
+                color: 'white',
+                padding: '1rem',
+                position: 'fixed',
+                height: '100%',
+                top: 0,
+                left: 0,
+                overflowY: 'auto', // Scroll if too long
+              }}>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                  <li style={{ margin: '1rem 0' }}><Link href="/" style={{ color: 'white', textDecoration: 'none' }}>Dashboard</Link></li>
+                  <li style={{ margin: '1rem 0' }}><Link href="/buy-perfumes" style={{ color: 'white', textDecoration: 'none' }}>Buy Perfume(s)</Link></li>
+                  <li style={{ margin: '1rem 0' }}><Link href="/my-orders" style={{ color: 'white', textDecoration: 'none' }}>My Orders</Link></li>
+                  <li style={{ margin: '1rem 0' }}><Link href="/my-network/first-gen" style={{ color: 'white', textDecoration: 'none' }}>First Gen</Link></li>
+                  <li style={{ margin: '1rem 0' }}><Link href="/my-network/gen-2" style={{ color: 'white', textDecoration: 'none' }}>Gen 2</Link></li>
+                  <li style={{ margin: '1rem 0' }}><Link href="/my-network/gen-3" style={{ color: 'white', textDecoration: 'none' }}>Gen 3</Link></li>
+                  <li style={{ margin: '1rem 0' }}><Link href="/my-network/gen-4" style={{ color: 'white', textDecoration: 'none' }}>Gen 4</Link></li>
+                  <li style={{ margin: '1rem 0' }}><Link href="/my-network/gen-5" style={{ color: 'white', textDecoration: 'none' }}>Gen 5</Link></li>
+                  <li style={{ margin: '1rem 0' }}><Link href="/my-office" style={{ color: 'white', textDecoration: 'none' }}>My Office</Link></li>
+                  <li style={{ margin: '1rem 0' }}><Link href="/team-commissions" style={{ color: 'white', textDecoration: 'none' }}>Team Commissions</Link></li>
+                  <li style={{ margin: '1rem 0' }}><Link href="/team-rankings" style={{ color: 'white', textDecoration: 'none' }}>Team Rankings</Link></li>
+                  <li style={{ margin: '1rem 0' }}><Link href="/team-sales" style={{ color: 'white', textDecoration: 'none' }}>Team Sales</Link></li>
+                  <li style={{ margin: '1rem 0' }}><Link href="/team-recruitment" style={{ color: 'white', textDecoration: 'none' }}>Team Recruitment</Link></li>
+                  <li style={{ margin: '1rem 0' }}><Link href="/account-maintenance" style={{ color: 'white', textDecoration: 'none' }}>Account Maintenance</Link></li>
+                  <li style={{ margin: '1rem 0' }}><Link href="/account-profile" style={{ color: 'white', textDecoration: 'none' }}>Account Profile</Link></li>
+                  <li style={{ margin: '1rem 0' }}><Link href="/bank-account" style={{ color: 'white', textDecoration: 'none' }}>Bank Account</Link></li>
+                  <li style={{ margin: '1rem 0' }}><Link href="/miscellaneous" style={{ color: 'white', textDecoration: 'none' }}>Miscellaneous</Link></li>
+                  <li style={{ margin: '1rem 0' }}><Link href="/create-ticket" style={{ color: 'white', textDecoration: 'none' }}>Create Ticket</Link></li>
+                  <li style={{ margin: '1rem 0' }}><Link href="/my-tickets" style={{ color: 'white', textDecoration: 'none' }}>My Tickets</Link></li>
+                </ul>
+              </nav>
+            )}
+            <main style={{
+              flex: 1,
+              marginLeft: isLoggedIn ? '16rem' : '0',
+              padding: '1.5rem',
+              backgroundColor: '#f3f4f6',
+            }}>
+              {children}
+            </main>
+          </div>
+        </AuthContext.Provider>
       </body>
     </html>
   );
