@@ -1,34 +1,79 @@
+"use client";
+import { useState } from 'react';
+import Image from 'next/image';
 import styles from './buyPerfumes.module.css';
 
+const perfumes = [
+  { id: 1, name: 'Perfume 1', price: 'R150', image: '/perfume1.jpg' },
+  { id: 2, name: 'Perfume 2', price: 'R200', image: '/perfume2.jpg' },
+  { id: 3, name: 'Perfume 3', price: 'R180', image: '/perfume3.jpg' },
+];
+
 export default function BuyPerfumes() {
-  const perfumes = [
-    { name: "Eau de Luxe", price: "R500", stock: 10, image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=300&h=200&fit=crop" },
-    { name: "Floral Bliss", price: "R450", stock: 15, image: "https://images.unsplash.com/photo-1590736969955-4d3d26fed26b?w=300&h=200&fit=crop" },
-    { name: "Midnight Rose", price: "R600", stock: 8, image: "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=300&h=200&fit=crop" },
-    { name: "Citrus Zest", price: "R400", stock: 20, image: "https://images.unsplash.com/photo-1600585154363-67eb9e2e209a?w=300&h=200&fit=crop" },
-    { name: "Ocean Breeze", price: "R550", stock: 12, image: "https://images.unsplash.com/photo-1600585154886-8d4e1a6f1b0a?w=300&h=200&fit=crop" },
-    { name: "Velvet Musk", price: "R700", stock: 5, image: "https://images.unsplash.com/photo-1600585154086-8d4e1a6f1b0a?w=300&h=200&fit=crop" },
-  ];
+  const [cart, setCart] = useState([]);
+
+  const addToCart = (perfume) => {
+    setCart((prevCart) => {
+      const existingItem = prevCart.find((item) => item.id === perfume.id);
+      if (existingItem) {
+        return prevCart.map((item) =>
+          item.id === perfume.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      }
+      return [...prevCart, { ...perfume, quantity: 1 }];
+    });
+  };
+
+  const removeFromCart = (id) => {
+    setCart((prevCart) => prevCart.filter((item) => item.id !== id));
+  };
 
   return (
-    <div>
-      <h1 className={styles.title}>Buy Perfume(s)</h1>
+    <div className={styles.container}>
+      <h1 className={styles.title}>Buy Perfumes</h1>
       <div className={styles.grid}>
-        {perfumes.map((perfume, index) => (
-          <div key={index} className={styles.productCard}>
-            <img src={perfume.image} alt={perfume.name} className={styles.productImage} />
-            <h2 className={styles.productTitle}>{perfume.name}</h2>
-            <p className={styles.productPrice}>{perfume.price}</p>
-            <p className={styles.productStock}>In Stock: {perfume.stock}</p>
-            <button className={styles.addButton}>Add to Cart</button>
+        {perfumes.map((perfume) => (
+          <div key={perfume.id} className={styles.card}>
+            <Image
+              src={perfume.image}
+              alt={perfume.name}
+              width={300}
+              height={200}
+              className={styles.productImage}
+            />
+            <h2 className={styles.cardTitle}>{perfume.name}</h2>
+            <p className={styles.cardPrice}>{perfume.price}</p>
+            <button
+              onClick={() => addToCart(perfume)}
+              className={styles.addButton}
+            >
+              Add to Cart
+            </button>
           </div>
         ))}
       </div>
-      <div className={styles.cartSection}>
-        <h2 className={styles.cartTitle}>My Cart</h2>
-        <p>Your cart is empty</p>
-      </div>
+
+      <h2 className={styles.cartTitle}>My Cart</h2>
+      {cart.length === 0 ? (
+        <p className={styles.emptyCart}>Your cart is empty.</p>
+      ) : (
+        <div className={styles.cart}>
+          {cart.map((item) => (
+            <div key={item.id} className={styles.cartItem}>
+              <span>{item.name} - {item.price} x {item.quantity}</span>
+              <button
+                onClick={() => removeFromCart(item.id)}
+                className={styles.removeButton}
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+          <p className={styles.cartTotal}>
+            Total: R{cart.reduce((sum, item) => sum + parseFloat(item.price.slice(1)) * item.quantity, 0).toFixed(2)}
+          </p>
+        </div>
+      )}
     </div>
   );
-}// Updated comment
-// Trigger Vercel
+}
