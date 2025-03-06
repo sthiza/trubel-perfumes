@@ -6,12 +6,16 @@ export default function MyOrders() {
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
-    // Mock orders—later tie to checkout
-    const mockOrders = [
-      { id: 1, date: '2025-03-07', items: ['Perfume 1 x 2', 'Perfume 2 x 1'], total: 'R500' },
-      { id: 2, date: '2025-03-06', items: ['Perfume 3 x 1'], total: 'R180' },
-    ];
-    setOrders(mockOrders);
+    const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+    if (storedOrders.length === 0) {
+      const mockOrders = [
+        { id: 1, date: '2025-03-07', items: ['Perfume 1 x 2', 'Perfume 2 x 1'], total: 'R500' },
+        { id: 2, date: '2025-03-06', items: ['Perfume 3 x 1'], total: 'R180' },
+      ];
+      setOrders(mockOrders);
+    } else {
+      setOrders(storedOrders);
+    }
   }, []);
 
   return (
