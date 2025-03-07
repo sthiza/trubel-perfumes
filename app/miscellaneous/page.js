@@ -1,15 +1,15 @@
 "use client";
 import { useState, useEffect } from 'react';
-import styles from './orders.module.css';
-import layoutStyles from '../layout.module.css';
+import styles from '../dashboard.module.css';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import layoutStyles from '../layout.module.css';
 
-export default function MyOrders() {
+export default function PlaceholderPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState('User');
-  const [orders, setOrders] = useState([]);
   const [isMounted, setIsMounted] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -18,18 +18,19 @@ export default function MyOrders() {
     const name = localStorage.getItem('userName') || 'User';
     setIsLoggedIn(loggedIn);
     setUserName(name);
-    const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-    setOrders(Array.isArray(storedOrders) ? storedOrders : []);
   }, []);
 
   const handleLogout = () => {
     if (confirm('Are you sure you want to logout?')) {
-      localStorage.setItem('isLoggedIn', 'false');
-      localStorage.removeItem('userName');
-      localStorage.removeItem('orders');
-      localStorage.removeItem('cart');
-      setIsLoggedIn(false);
-      router.push('/');
+      setIsLoggingOut(true);
+      setTimeout(() => {
+        localStorage.setItem('isLoggedIn', 'false');
+        localStorage.removeItem('userName');
+        localStorage.removeItem('orders');
+        localStorage.removeItem('cart');
+        setIsLoggedIn(false);
+        router.push('/');
+      }, 500);
     }
   };
 
@@ -37,9 +38,9 @@ export default function MyOrders() {
 
   return (
     <>
-      {isLoggedIn && (
+      {isLoggedIn ? (
         <>
-          <header className={layoutStyles.header}>
+          <header className={`${layoutStyles.header} ${isLoggingOut ? layoutStyles.fadeOut : ''}`}>
             <h1 className={layoutStyles.headerTitle}>Trubel Perfumes</h1>
             <div className={layoutStyles.userProfile}>
               <span className={layoutStyles.userName}>{userName}</span>
@@ -48,7 +49,7 @@ export default function MyOrders() {
               </button>
             </div>
           </header>
-          <nav className={layoutStyles.sidebar}>
+          <nav className={`${layoutStyles.sidebar} ${isLoggingOut ? layoutStyles.fadeOut : ''}`}>
             <ul className={layoutStyles.navList}>
               <li><Link href="/">Dashboard</Link></li>
               <li><Link href="/buy-perfumes">Buy Perfume(s)</Link></li>
@@ -71,32 +72,18 @@ export default function MyOrders() {
               <li><Link href="/my-tickets">My Tickets</Link></li>
             </ul>
           </nav>
+          <main className={layoutStyles.mainWithSidebar}>
+            <div className={styles.container}>
+              <h1 className={styles.title}>Under Construction</h1>
+              <p>This page is being restored—stay tuned, King!</p>
+            </div>
+          </main>
         </>
+      ) : (
+        <main className={layoutStyles.mainFull}>
+          <p>Please log in to view this page.</p>
+        </main>
       )}
-      <main className={isLoggedIn ? layoutStyles.mainWithSidebar : layoutStyles.mainFull}>
-        <div className={styles.container}>
-          <h1 className={styles.title}>My Orders</h1>
-          <div className={styles.orderList}>
-            {orders.length === 0 ? (
-              <p>No orders yet.</p>
-            ) : (
-              orders.map(order => (
-                <div key={order.id} className={styles.orderCard}>
-                  <p><strong>Order ID:</strong> {order.id}</p>
-                  <p><strong>Total:</strong> {order.total}</p>
-                  <p><strong>Status:</strong> {order.status}</p>
-                  <p><strong>Date:</strong> {new Date(order.date).toLocaleString()}</p>
-                  <ul>
-                    {order.items.map((item, index) => (
-                      <li key={index}>{item.name} - {item.price}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      </main>
     </>
   );
 }
