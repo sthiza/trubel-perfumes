@@ -9,27 +9,24 @@ export default function MyOrders() {
     const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
     if (storedOrders.length === 0) {
       const mockOrders = [
-        { id: 1, date: '2025-03-07', items: ['Perfume 1 x 2', 'Perfume 2 x 1'], total: 'R500', status: 'Shipped' },
+        { id: 1, date: '2025-03-07', items: ['Perfume 1 x 2'], total: 'R300', status: 'Shipped' },
         { id: 2, date: '2025-03-06', items: ['Perfume 3 x 1'], total: 'R180', status: 'Pending' },
       ];
       setOrders(mockOrders);
       localStorage.setItem('orders', JSON.stringify(mockOrders));
     } else {
-      const updatedOrders = storedOrders.map(order => ({
-        ...order,
-        status: order.status || 'Pending'
-      }));
-      setOrders(updatedOrders);
-      localStorage.setItem('orders', JSON.stringify(updatedOrders));
+      setOrders(storedOrders);
     }
   }, []);
 
   const updateStatus = (id) => {
-    const newOrders = orders.map(order =>
-      order.id === id
-        ? { ...order, status: order.status === 'Pending' ? 'Shipped' : 'Pending' }
-        : order
-    );
+    const newOrders = orders.map(order => {
+      if (order.id === id) {
+        const nextStatus = order.status === 'Pending' ? 'Shipped' : order.status === 'Shipped' ? 'Delivered' : 'Pending';
+        return { ...order, status: nextStatus };
+      }
+      return order;
+    });
     setOrders(newOrders);
     localStorage.setItem('orders', JSON.stringify(newOrders));
   };
@@ -50,7 +47,7 @@ export default function MyOrders() {
                   onClick={() => updateStatus(order.id)}
                   className={styles.statusButton}
                 >
-                  {order.status === 'Pending' ? 'Mark Shipped' : 'Mark Pending'}
+                  {order.status === 'Pending' ? 'Mark Shipped' : order.status === 'Shipped' ? 'Mark Delivered' : 'Mark Pending'}
                 </button>
               </p>
               <ul className={styles.items}>
