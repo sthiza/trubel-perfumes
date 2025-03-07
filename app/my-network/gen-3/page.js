@@ -1,20 +1,20 @@
 "use client";
 import { useState, useEffect } from 'react';
 import styles from './network.module.css';
+import { getNetworkData } from '../../networkUtils';
 
-export default function Gen3() {
+export default function FirstGen() {
   const [recruits, setRecruits] = useState([]);
 
   useEffect(() => {
-    const mockRecruits = [
-      { id: 5, name: 'Bongani Zulu', joined: '2025-03-06', sales: 'R300', rank: 'Recruit' },
-    ];
-    setRecruits(mockRecruits);
+    const { networkData } = getNetworkData();
+    const firstGen = networkData.find(gen => gen.gen === 'First Gen') || { recruits: [] };
+    setRecruits(firstGen.recruits);
   }, []);
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Generation 3 Network</h1>
+      <h1 className={styles.title}>First Generation Network</h1>
       {recruits.length === 0 ? (
         <p className={styles.empty}>No recruits yet.</p>
       ) : (

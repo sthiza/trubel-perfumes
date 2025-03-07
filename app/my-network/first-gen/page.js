@@ -1,16 +1,21 @@
 "use client";
 import { useState, useEffect } from 'react';
 import styles from './network.module.css';
+import { getNetworkData } from '../../networkUtils';
 
 export default function FirstGen() {
   const [recruits, setRecruits] = useState([]);
 
+  const updateRecruits = () => {
+    const { networkData } = getNetworkData();
+    const firstGen = networkData.find(gen => gen.gen === 'First Gen') || { recruits: [] };
+    setRecruits(firstGen.recruits);
+  };
+
   useEffect(() => {
-    const mockRecruits = [
-      { id: 1, name: 'Thabo Mokoena', joined: '2025-03-01', sales: 'R1200', rank: 'Team Leader' },
-      { id: 2, name: 'Sipho Ngwenya', joined: '2025-03-03', sales: 'R800', rank: 'Recruit' },
-    ];
-    setRecruits(mockRecruits);
+    updateRecruits();
+    window.addEventListener('networkChange', updateRecruits);
+    return () => window.removeEventListener('networkChange', updateRecruits);
   }, []);
 
   return (

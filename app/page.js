@@ -8,15 +8,18 @@ export default function Dashboard() {
   const [networkStats, setNetworkStats] = useState({ totalRecruits: 0, totalSales: 0 });
   const [networkDetails, setNetworkDetails] = useState([]);
 
-  useEffect(() => {
-    // Orders from localStorage
-    const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-    setOrders(storedOrders);
-
-    // Network data
+  const updateNetwork = () => {
     const { networkData, totalRecruits, totalSales } = getNetworkData();
     setNetworkStats({ totalRecruits, totalSales });
     setNetworkDetails(networkData);
+  };
+
+  useEffect(() => {
+    const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+    setOrders(storedOrders);
+    updateNetwork();
+    window.addEventListener('networkChange', updateNetwork);
+    return () => window.removeEventListener('networkChange', updateNetwork);
   }, []);
 
   const orderTotal = orders.reduce((sum, order) => sum + parseFloat(order.total.slice(1)), 0).toFixed(2);
@@ -47,8 +50,8 @@ export default function Dashboard() {
           {networkDetails.map((gen, index) => (
             <div key={index} className={styles.detailItem}>
               <p><strong>{gen.gen}</strong></p>
-              <p>Recruits: {gen.recruits}</p>
-              <p>Sales: R{gen.sales}</p>
+              <p>Recruits: {gen.recruits.length}</p>
+              <p>Sales: R{gen.recruits.reduce((sum, r) => sum + parseFloat(r.sales.slice(1)), 0)}</p>
             </div>
           ))}
         </div>
