@@ -13,15 +13,26 @@ export default function MyOrders() {
         { id: 2, date: '2025-03-06', items: ['Perfume 3 x 1'], total: 'R180', status: 'Pending' },
       ];
       setOrders(mockOrders);
+      localStorage.setItem('orders', JSON.stringify(mockOrders));
     } else {
-      // Add status to existing orders if missing
       const updatedOrders = storedOrders.map(order => ({
         ...order,
         status: order.status || 'Pending'
       }));
       setOrders(updatedOrders);
+      localStorage.setItem('orders', JSON.stringify(updatedOrders));
     }
   }, []);
+
+  const updateStatus = (id) => {
+    const newOrders = orders.map(order =>
+      order.id === id
+        ? { ...order, status: order.status === 'Pending' ? 'Shipped' : 'Pending' }
+        : order
+    );
+    setOrders(newOrders);
+    localStorage.setItem('orders', JSON.stringify(newOrders));
+  };
 
   return (
     <div className={styles.container}>
@@ -32,7 +43,16 @@ export default function MyOrders() {
         <div className={styles.orderList}>
           {orders.map((order) => (
             <div key={order.id} className={styles.order}>
-              <p><strong>Order #{order.id}</strong> - {order.date} <span className={styles.status}>{order.status}</span></p>
+              <p>
+                <strong>Order #{order.id}</strong> - {order.date}{' '}
+                <span className={styles.status} data-status={order.status}>{order.status}</span>
+                <button
+                  onClick={() => updateStatus(order.id)}
+                  className={styles.statusButton}
+                >
+                  {order.status === 'Pending' ? 'Mark Shipped' : 'Mark Pending'}
+                </button>
+              </p>
               <ul className={styles.items}>
                 {order.items.map((item, index) => (
                   <li key={index}>{item}</li>

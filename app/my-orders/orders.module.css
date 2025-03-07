@@ -51,12 +51,27 @@
   display: inline-block;
 }
 
-.status:where([data-status="Pending"]) {
+.status[data-status="Pending"] {
   background-color: #f59e0b;
   color: white;
 }
 
-.status:where([data-status="Shipped"]) {
+.status[data-status="Shipped"] {
   background-color: #16a34a;
   color: white;
+}
+
+.statusButton {
+  margin-left: 1rem;
+  padding: 0.25rem 0.75rem;
+  background-color: #6b21a8;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.statusButton:hover {
+  background-color: #7e22ce;
 }
