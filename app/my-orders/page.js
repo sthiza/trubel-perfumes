@@ -5,6 +5,7 @@ import styles from './orders.module.css';
 export default function MyOrders() {
   const [orders, setOrders] = useState([]);
   const [filter, setFilter] = useState('All');
+  const [searchId, setSearchId] = useState('');
 
   useEffect(() => {
     const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
@@ -33,7 +34,7 @@ export default function MyOrders() {
   };
 
   const exportOrders = () => {
-    const filteredOrders = filter === 'All' ? orders : orders.filter(order => order.status === filter);
+    const filteredOrders = getFilteredOrders();
     const csvRows = [
       ['Order ID', 'Date', 'Items', 'Total', 'Status'],
       ...filteredOrders.map(order => [
@@ -48,17 +49,35 @@ export default function MyOrders() {
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `orders_${filter.toLowerCase()}_${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = `orders_${filter.toLowerCase()}_${searchId || 'all'}_${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
   };
 
-  const filteredOrders = filter === 'All' ? orders : orders.filter(order => order.status === filter);
+  const getFilteredOrders = () => {
+    let filtered = orders;
+    if (filter !== 'All') {
+      filtered = filtered.filter(order => order.status === filter);
+    }
+    if (searchId) {
+      filtered = filtered.filter(order => order.id.toString().includes(searchId));
+    }
+    return filtered;
+  };
+
+  const filteredOrders = getFilteredOrders();
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <h1 className={styles.title}>My Orders</h1>
         <div className={styles.controls}>
+          <input
+            type="text"
+            value={searchId}
+            onChange={(e) => setSearchId(e.target.value)}
+            placeholder="Search by Order ID"
+            className={styles.searchInput}
+          />
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
@@ -75,7 +94,7 @@ export default function MyOrders() {
         </div>
       </div>
       {filteredOrders.length === 0 ? (
-        <p className={styles.empty}>No orders match this filter.</p>
+        <p className={styles.empty}>No orders match this filter or search.</p>
       ) : (
         <div className={styles.orderList}>
           {filteredOrders.map((order) => (
