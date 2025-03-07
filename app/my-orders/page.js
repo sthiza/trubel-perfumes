@@ -31,9 +31,33 @@ export default function MyOrders() {
     localStorage.setItem('orders', JSON.stringify(newOrders));
   };
 
+  const exportOrders = () => {
+    const csvRows = [
+      ['Order ID', 'Date', 'Items', 'Total', 'Status'],
+      ...orders.map(order => [
+        order.id,
+        order.date,
+        `"${order.items.join(', ')}"`,
+        order.total,
+        order.status,
+      ]),
+    ];
+    const csvContent = csvRows.map(row => row.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `orders_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+  };
+
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>My Orders</h1>
+      <div className={styles.header}>
+        <h1 className={styles.title}>My Orders</h1>
+        <button onClick={exportOrders} className={styles.exportButton}>
+          Export Orders
+        </button>
+      </div>
       {orders.length === 0 ? (
         <p className={styles.empty}>No orders yet.</p>
       ) : (
