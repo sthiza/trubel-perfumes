@@ -7,6 +7,7 @@ export default function Dashboard() {
   const [orders, setOrders] = useState([]);
   const [networkStats, setNetworkStats] = useState({ totalRecruits: 0, totalSales: 0 });
   const [networkDetails, setNetworkDetails] = useState([]);
+  const [userName, setUserName] = useState('');
 
   const updateNetwork = () => {
     const { networkData, totalRecruits, totalSales } = getNetworkData();
@@ -17,6 +18,8 @@ export default function Dashboard() {
   useEffect(() => {
     const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
     setOrders(storedOrders);
+    const name = localStorage.getItem('userName') || 'User';
+    setUserName(name);
     updateNetwork();
     window.addEventListener('networkChange', updateNetwork);
     return () => window.removeEventListener('networkChange', updateNetwork);
@@ -26,6 +29,10 @@ export default function Dashboard() {
 
   return (
     <div className={styles.container}>
+      <div className={styles.welcome}>
+        <h1 className={styles.welcomeTitle}>Welcome, {userName}!</h1>
+        <p className={styles.welcomeText}>Your empire is thriving—keep ruling the perfume game!</p>
+      </div>
       <h1 className={styles.title}>Dashboard</h1>
       <div className={styles.summary}>
         <div className={styles.card}>
