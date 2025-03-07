@@ -2,6 +2,11 @@
   display: flex;
   min-height: 100vh;
   flex-direction: column;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.appContainer.loggingOut {
+  opacity: 0;
 }
 
 .header {

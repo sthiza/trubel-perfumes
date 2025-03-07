@@ -12,6 +12,7 @@ export function useAuth() {
 export default function RootLayout({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState('');
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
@@ -34,11 +35,14 @@ export default function RootLayout({ children }) {
 
   const handleLogout = () => {
     if (confirm('Are you sure you want to logout?')) {
-      localStorage.setItem('isLoggedIn', 'false');
-      localStorage.removeItem('userName');
-      localStorage.removeItem('orders');
-      window.dispatchEvent(new Event('loginChange'));
-      window.location.href = '/';
+      setIsLoggingOut(true);
+      setTimeout(() => {
+        localStorage.setItem('isLoggedIn', 'false');
+        localStorage.removeItem('userName');
+        localStorage.removeItem('orders');
+        window.dispatchEvent(new Event('loginChange'));
+        window.location.href = '/';
+      }, 500); // Match animation duration
     }
   };
 
@@ -46,7 +50,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
-          <div className={styles.appContainer}>
+          <div className={`${styles.appContainer} ${isLoggingOut ? styles.loggingOut : ''}`}>
             {isLoggedIn && (
               <>
                 <header className={styles.header}>
