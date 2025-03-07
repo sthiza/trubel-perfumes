@@ -4,6 +4,7 @@ import styles from './orders.module.css';
 
 export default function MyOrders() {
   const [orders, setOrders] = useState([]);
+  const [filter, setFilter] = useState('All');
 
   useEffect(() => {
     const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
@@ -32,9 +33,10 @@ export default function MyOrders() {
   };
 
   const exportOrders = () => {
+    const filteredOrders = filter === 'All' ? orders : orders.filter(order => order.status === filter);
     const csvRows = [
       ['Order ID', 'Date', 'Items', 'Total', 'Status'],
-      ...orders.map(order => [
+      ...filteredOrders.map(order => [
         order.id,
         order.date,
         `"${order.items.join(', ')}"`,
@@ -46,23 +48,37 @@ export default function MyOrders() {
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `orders_${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = `orders_${filter.toLowerCase()}_${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
   };
+
+  const filteredOrders = filter === 'All' ? orders : orders.filter(order => order.status === filter);
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <h1 className={styles.title}>My Orders</h1>
-        <button onClick={exportOrders} className={styles.exportButton}>
-          Export Orders
-        </button>
+        <div className={styles.controls}>
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className={styles.filterSelect}
+          >
+            <option value="All">All</option>
+            <option value="Pending">Pending</option>
+            <option value="Shipped">Shipped</option>
+            <option value="Delivered">Delivered</option>
+          </select>
+          <button onClick={exportOrders} className={styles.exportButton}>
+            Export Orders
+          </button>
+        </div>
       </div>
-      {orders.length === 0 ? (
-        <p className={styles.empty}>No orders yet.</p>
+      {filteredOrders.length === 0 ? (
+        <p className={styles.empty}>No orders match this filter.</p>
       ) : (
         <div className={styles.orderList}>
-          {orders.map((order) => (
+          {filteredOrders.map((order) => (
             <div key={order.id} className={styles.order}>
               <p>
                 <strong>Order #{order.id}</strong> - {order.date}{' '}
