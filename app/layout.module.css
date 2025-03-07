@@ -24,6 +24,20 @@
   margin: 0;
 }
 
+.userProfile {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.userName {
+  font-size: 1.1rem;
+  font-weight: 500;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+}
+
 .logoutButton {
   background-color: #dc2626;
   color: white;
@@ -44,8 +58,8 @@
   color: white;
   padding: 1rem;
   position: fixed;
-  height: calc(100% - 4rem); /* Adjust for header height */
-  top: 4rem; /* Below header */
+  height: calc(100% - 4rem);
+  top: 4rem;
   left: 0;
   overflow-y: auto;
 }
@@ -73,7 +87,7 @@
 .mainWithSidebar {
   flex: 1;
   margin-left: 16rem;
-  padding: 5rem 1.5rem 1.5rem; /* Top padding for header */
+  padding: 5rem 1.5rem 1.5rem;
   background-color: #f3f4f6;
 }
 

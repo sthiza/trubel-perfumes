@@ -11,13 +11,18 @@ export function useAuth() {
 
 export default function RootLayout({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState('');
 
   useEffect(() => {
     const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const name = localStorage.getItem('userName') || 'User';
     setIsLoggedIn(loggedIn);
+    setUserName(name);
     const handleLoginChange = () => {
       const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      const newName = localStorage.getItem('userName') || 'User';
       setIsLoggedIn(loggedIn);
+      setUserName(newName);
     };
     window.addEventListener('loginChange', handleLoginChange);
     window.addEventListener('storage', handleLoginChange);
@@ -46,12 +51,15 @@ export default function RootLayout({ children }) {
               <>
                 <header className={styles.header}>
                   <h1 className={styles.headerTitle}>Trubel Perfumes</h1>
-                  <button
-                    onClick={handleLogout}
-                    className={styles.logoutButton}
-                  >
-                    Logout
-                  </button>
+                  <div className={styles.userProfile}>
+                    <span className={styles.userName}>{userName}</span>
+                    <button
+                      onClick={handleLogout}
+                      className={styles.logoutButton}
+                    >
+                      Logout
+                    </button>
+                  </div>
                 </header>
                 <nav className={styles.sidebar}>
                   <ul className={styles.navList}>

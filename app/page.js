@@ -1,27 +1,22 @@
 "use client";
 import { useState, useEffect } from 'react';
 import styles from './dashboard.module.css';
+import { getNetworkData } from './networkUtils';
 
 export default function Dashboard() {
   const [orders, setOrders] = useState([]);
   const [networkStats, setNetworkStats] = useState({ totalRecruits: 0, totalSales: 0 });
+  const [networkDetails, setNetworkDetails] = useState([]);
 
   useEffect(() => {
     // Orders from localStorage
     const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
     setOrders(storedOrders);
 
-    // Mock network stats (replace with real data later)
-    const mockNetwork = [
-      { gen: 'First Gen', recruits: 2, sales: 2000 },
-      { gen: 'Gen 2', recruits: 2, sales: 1000 },
-      { gen: 'Gen 3', recruits: 1, sales: 300 },
-      { gen: 'Gen 4', recruits: 1, sales: 200 },
-      { gen: 'Gen 5', recruits: 1, sales: 100 },
-    ];
-    const totalRecruits = mockNetwork.reduce((sum, gen) => sum + gen.recruits, 0);
-    const totalSales = mockNetwork.reduce((sum, gen) => sum + gen.sales, 0);
+    // Network data
+    const { networkData, totalRecruits, totalSales } = getNetworkData();
     setNetworkStats({ totalRecruits, totalSales });
+    setNetworkDetails(networkData);
   }, []);
 
   const orderTotal = orders.reduce((sum, order) => sum + parseFloat(order.total.slice(1)), 0).toFixed(2);
@@ -44,6 +39,18 @@ export default function Dashboard() {
           <h2 className={styles.cardTitle}>Network Sales</h2>
           <p className={styles.cardValue}>R{networkStats.totalSales}</p>
           <p className={styles.cardSub}>Total Earnings</p>
+        </div>
+      </div>
+      <div className={styles.details}>
+        <h2 className={styles.detailsTitle}>Network Breakdown</h2>
+        <div className={styles.detailsList}>
+          {networkDetails.map((gen, index) => (
+            <div key={index} className={styles.detailItem}>
+              <p><strong>{gen.gen}</strong></p>
+              <p>Recruits: {gen.recruits}</p>
+              <p>Sales: R{gen.sales}</p>
+            </div>
+          ))}
         </div>
       </div>
     </div>
