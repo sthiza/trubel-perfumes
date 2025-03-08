@@ -1,93 +1,93 @@
 "use client";
-import { useState } from 'react';
-import styles from './recruitment.module.css';
-import { getNetworkData } from '../networkUtils';
+import { useState, useEffect } from 'react';
+import styles from '../dashboard.module.css';
+import layoutStyles from '../layout.module.css';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function TeamRecruitment() {
-  const [form, setForm] = useState({ name: '', joined: '', sales: '', rank: 'Recruit', gen: 'First Gen' });
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState('User');
+  const [isMounted, setIsMounted] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const { networkData } = getNetworkData();
-    const newRecruit = {
-      id: Date.now(),
-      name: form.name,
-      joined: form.joined || new Date().toISOString().split('T')[0],
-      sales: `R${parseFloat(form.sales || 0).toFixed(2)}`,
-      rank: form.rank,
-    };
-    const genIndex = networkData.findIndex(g => g.gen === form.gen);
-    if (genIndex !== -1) {
-      networkData[genIndex].recruits.push(newRecruit);
-    } else {
-      networkData.push({ gen: form.gen, recruits: [newRecruit] });
+  useEffect(() => {
+    setIsMounted(true);
+    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const name = localStorage.getItem('userName') || 'User';
+    setIsLoggedIn(loggedIn);
+    setUserName(name);
+  }, []);
+
+  const handleLogout = () => {
+    if (confirm('Are you sure you want to logout?')) {
+      setIsLoggingOut(true);
+      setTimeout(() => {
+        localStorage.setItem('isLoggedIn', 'false');
+        localStorage.removeItem('userName');
+        localStorage.removeItem('orders');
+        localStorage.removeItem('cart');
+        setIsLoggedIn(false);
+        router.push('/');
+      }, 500);
     }
-    localStorage.setItem('network', JSON.stringify(networkData));
-    window.dispatchEvent(new Event('networkChange')); // Trigger update
-    setForm({ name: '', joined: '', sales: '', rank: 'Recruit', gen: 'First Gen' });
-    alert('Recruit added!');
   };
 
+  if (!isMounted) return null;
+
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>Add New Recruit</h1>
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <label className={styles.label}>
-          Name:
-          <input
-            type="text"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className={styles.input}
-            required
-          />
-        </label>
-        <label className={styles.label}>
-          Joined Date:
-          <input
-            type="date"
-            value={form.joined}
-            onChange={(e) => setForm({ ...form, joined: e.target.value })}
-            className={styles.input}
-          />
-        </label>
-        <label className={styles.label}>
-          Sales (R):
-          <input
-            type="number"
-            step="0.01"
-            value={form.sales}
-            onChange={(e) => setForm({ ...form, sales: e.target.value })}
-            className={styles.input}
-          />
-        </label>
-        <label className={styles.label}>
-          Rank:
-          <select
-            value={form.rank}
-            onChange={(e) => setForm({ ...form, rank: e.target.value })}
-            className={styles.input}
-          >
-            <option value="Recruit">Recruit</option>
-            <option value="Team Leader">Team Leader</option>
-          </select>
-        </label>
-        <label className={styles.label}>
-          Generation:
-          <select
-            value={form.gen}
-            onChange={(e) => setForm({ ...form, gen: e.target.value })}
-            className={styles.input}
-          >
-            <option value="First Gen">First Gen</option>
-            <option value="Gen 2">Gen 2</option>
-            <option value="Gen 3">Gen 3</option>
-            <option value="Gen 4">Gen 4</option>
-            <option value="Gen 5">Gen 5</option>
-          </select>
-        </label>
-        <button type="submit" className={styles.submitButton}>Add Recruit</button>
-      </form>
+    <div>
+      {isLoggedIn ? (
+        <>
+          <header className={`${layoutStyles.header} ${isLoggingOut ? layoutStyles.fadeOut : ''}`}>
+            <h1 className={layoutStyles.headerTitle}>Trubel Perfumes</h1>
+            <div className={layoutStyles.userProfile}>
+              <span className={layoutStyles.userName}>{userName}</span>
+              <button onClick={handleLogout} className={layoutStyles.logoutButton}>
+                Logout
+              </button>
+            </div>
+          </header>
+          <nav className={`${layoutStyles.sidebar} ${isLoggingOut ? layoutStyles.fadeOut : ''}`}>
+            <ul className={layoutStyles.navList}>
+              <li><Link href="/">Dashboard</Link></li>
+              <li><Link href="/buy-perfumes">Buy Perfume(s)</Link></li>
+              <li><Link href="/my-orders">My Orders</Link></li>
+              <li><Link href="/my-network/first-gen">First Gen</Link></li>
+              <li><Link href="/my-network/gen-2">Gen 2</Link></li>
+              <li><Link href="/my-network/gen-3">Gen 3</Link></li>
+              <li><Link href="/my-network/gen-4">Gen 4</Link></li>
+              <li><Link href="/my-network/gen-5">Gen 5</Link></li>
+              <li><Link href="/my-office">My Office</Link></li>
+              <li><Link href="/team-commissions">Team Commissions</Link></li>
+              <li><Link href="/team-rankings">Team Rankings</Link></li>
+              <li><Link href="/team-sales">Team Sales</Link></li>
+              <li><Link href="/team-recruitment">Team Recruitment</Link></li>
+              <li><Link href="/account-maintenance">Account Maintenance</Link></li>
+              <li><Link href="/account-profile">Account Profile</Link></li>
+              <li><Link href="/bank-account">Bank Account</Link></li>
+              <li><Link href="/miscellaneous">Miscellaneous</Link></li>
+              <li><Link href="/create-ticket">Create Ticket</Link></li>
+              <li><Link href="/my-tickets">My Tickets</Link></li>
+            </ul>
+          </nav>
+          <main className={layoutStyles.mainWithSidebar}>
+            <div className={styles.container}>
+              <h1 className={styles.title}>Add New Recruit</h1>
+              <p>Name:</p>
+              <p>Joined Date:</p>
+              <p>Sales (R):</p>
+              <p>Rank:</p>
+              <p>Generation:</p>
+            </div>
+          </main>
+        </>
+      ) : (
+        <main className={layoutStyles.mainFull}>
+          <p>Please log in to view this page.</p>
+        </main>
+      )}
     </div>
   );
 }
