@@ -5,8 +5,7 @@
 .title {
   font-size: 2rem;
   color: #6b21a8;
-<<<<<<< HEAD
-  margin: 0;
+  margin: 0; /* From HEAD, cleaner than margin-bottom: 20px */
 }
 
 .controls {
@@ -49,9 +48,6 @@
 .empty {
   font-size: 1.125rem;
   color: #6b7280;
-=======
-  margin-bottom: 20px;
->>>>>>> restored-app
 }
 
 .orderList {
