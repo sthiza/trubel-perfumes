@@ -1,15 +1,17 @@
 "use client";
 import { useState, useEffect } from 'react';
 import styles from '../dashboard.module.css';
+import layoutStyles from '../layout.module.css';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import layoutStyles from '../layout.module.css';
 
-export default function PlaceholderPage() {
+export default function MyTickets() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState('User');
+  const [isSuperUser, setIsSuperUser] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [tickets, setTickets] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -18,6 +20,9 @@ export default function PlaceholderPage() {
     const name = localStorage.getItem('userName') || 'User';
     setIsLoggedIn(loggedIn);
     setUserName(name);
+    setIsSuperUser(name === 'Lwakhe Sangweni');
+    const storedTickets = JSON.parse(localStorage.getItem('tickets') || '[]');
+    setTickets(storedTickets);
   }, []);
 
   const handleLogout = () => {
@@ -34,19 +39,25 @@ export default function PlaceholderPage() {
     }
   };
 
+  const resolveTicket = (id) => {
+    const updatedTickets = tickets.map(t => 
+      t.id === id ? { ...t, status: 'Resolved' } : t
+    );
+    setTickets(updatedTickets);
+    localStorage.setItem('tickets', JSON.stringify(updatedTickets));
+  };
+
   if (!isMounted) return null;
 
   return (
-    <>
+    <div>
       {isLoggedIn ? (
         <>
           <header className={`${layoutStyles.header} ${isLoggingOut ? layoutStyles.fadeOut : ''}`}>
             <h1 className={layoutStyles.headerTitle}>Trubel Perfumes</h1>
             <div className={layoutStyles.userProfile}>
               <span className={layoutStyles.userName}>{userName}</span>
-              <button onClick={handleLogout} className={layoutStyles.logoutButton}>
-                Logout
-              </button>
+              <button onClick={handleLogout} className={layoutStyles.logoutButton}>Logout</button>
             </div>
           </header>
           <nav className={`${layoutStyles.sidebar} ${isLoggingOut ? layoutStyles.fadeOut : ''}`}>
@@ -74,8 +85,20 @@ export default function PlaceholderPage() {
           </nav>
           <main className={layoutStyles.mainWithSidebar}>
             <div className={styles.container}>
-              <h1 className={styles.title}>Under Construction</h1>
-              <p>This page is being restored—stay tuned, King!</p>
+              <h1 className={styles.title}>My Tickets</h1>
+              <div className={styles.section}>
+                <h2>Your Tickets</h2>
+                <ul>
+                  {tickets.filter(t => t.user === userName || isSuperUser).map(t => (
+                    <li key={t.id}>
+                      {t.subject} - {t.date} ({t.status})
+                      {isSuperUser && t.status === 'Open' && (
+                        <button onClick={() => resolveTicket(t.id)}>Resolve</button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </main>
         </>
@@ -84,6 +107,6 @@ export default function PlaceholderPage() {
           <p>Please log in to view this page.</p>
         </main>
       )}
-    </>
+    </div>
   );
 }
