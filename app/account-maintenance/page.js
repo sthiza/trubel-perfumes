@@ -1,15 +1,18 @@
 "use client";
 import { useState, useEffect } from 'react';
 import styles from '../dashboard.module.css';
+import layoutStyles from '../layout.module.css';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import layoutStyles from '../layout.module.css';
+import { getNetworkData } from '../networkUtils';
 
-export default function PlaceholderPage() {
+export default function AccountMaintenance() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState('User');
+  const [isSuperUser, setIsSuperUser] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [recruits, setRecruits] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -18,6 +21,10 @@ export default function PlaceholderPage() {
     const name = localStorage.getItem('userName') || 'User';
     setIsLoggedIn(loggedIn);
     setUserName(name);
+    setIsSuperUser(name === 'Lwakhe Sangweni');
+    const { networkData } = getNetworkData();
+    const allRecruits = networkData.flatMap(gen => gen.recruits.map(r => ({ ...r, gen: gen.generation })));
+    setRecruits(allRecruits);
   }, []);
 
   const handleLogout = () => {
@@ -34,19 +41,28 @@ export default function PlaceholderPage() {
     }
   };
 
+  const deleteRecruit = (index) => {
+    if (confirm('Delete this recruit?')) {
+      const { networkData } = getNetworkData();
+      const recruit = recruits[index];
+      const genIndex = networkData.findIndex(g => g.generation === recruit.gen);
+      networkData[genIndex].recruits.splice(recruits.indexOf(recruit), 1);
+      localStorage.setItem('networkData', JSON.stringify(networkData));
+      setRecruits(networkData.flatMap(gen => gen.recruits.map(r => ({ ...r, gen: gen.generation }))));
+    }
+  };
+
   if (!isMounted) return null;
 
   return (
-    <>
+    <div>
       {isLoggedIn ? (
         <>
           <header className={`${layoutStyles.header} ${isLoggingOut ? layoutStyles.fadeOut : ''}`}>
             <h1 className={layoutStyles.headerTitle}>Trubel Perfumes</h1>
             <div className={layoutStyles.userProfile}>
               <span className={layoutStyles.userName}>{userName}</span>
-              <button onClick={handleLogout} className={layoutStyles.logoutButton}>
-                Logout
-              </button>
+              <button onClick={handleLogout} className={layoutStyles.logoutButton}>Logout</button>
             </div>
           </header>
           <nav className={`${layoutStyles.sidebar} ${isLoggingOut ? layoutStyles.fadeOut : ''}`}>
@@ -74,8 +90,22 @@ export default function PlaceholderPage() {
           </nav>
           <main className={layoutStyles.mainWithSidebar}>
             <div className={styles.container}>
-              <h1 className={styles.title}>Under Construction</h1>
-              <p>This page is being restored—stay tuned, King!</p>
+              <h1 className={styles.title}>Account Maintenance</h1>
+              {isSuperUser ? (
+                <div className={styles.section}>
+                  <h2>Manage Recruits</h2>
+                  <ul>
+                    {recruits.map((r, i) => (
+                      <li key={i}>
+                        {r.name} - {r.sales} ({r.gen}) 
+                        <button onClick={() => deleteRecruit(i)}>Delete</button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : (
+                <p className={styles.restricted}>Restricted to Super User.</p>
+              )}
             </div>
           </main>
         </>
@@ -84,6 +114,6 @@ export default function PlaceholderPage() {
           <p>Please log in to view this page.</p>
         </main>
       )}
-    </>
+    </div>
   );
 }
