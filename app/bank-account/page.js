@@ -1,15 +1,21 @@
 "use client";
 import { useState, useEffect } from 'react';
 import styles from '../dashboard.module.css';
+import layoutStyles from '../layout.module.css';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import layoutStyles from '../layout.module.css';
 
-export default function PlaceholderPage() {
+export default function BankAccount() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState('User');
   const [isMounted, setIsMounted] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [bankDetails, setBankDetails] = useState({
+    accountHolder: '',
+    bankName: '',
+    accountNumber: '',
+    branchCode: ''
+  });
   const router = useRouter();
 
   useEffect(() => {
@@ -18,6 +24,8 @@ export default function PlaceholderPage() {
     const name = localStorage.getItem('userName') || 'User';
     setIsLoggedIn(loggedIn);
     setUserName(name);
+    const savedDetails = JSON.parse(localStorage.getItem('bankDetails') || '{}');
+    setBankDetails({ ...bankDetails, ...savedDetails });
   }, []);
 
   const handleLogout = () => {
@@ -34,19 +42,22 @@ export default function PlaceholderPage() {
     }
   };
 
+  const saveBankDetails = () => {
+    localStorage.setItem('bankDetails', JSON.stringify(bankDetails));
+    alert('Bank details saved!');
+  };
+
   if (!isMounted) return null;
 
   return (
-    <>
+    <div>
       {isLoggedIn ? (
         <>
           <header className={`${layoutStyles.header} ${isLoggingOut ? layoutStyles.fadeOut : ''}`}>
             <h1 className={layoutStyles.headerTitle}>Trubel Perfumes</h1>
             <div className={layoutStyles.userProfile}>
               <span className={layoutStyles.userName}>{userName}</span>
-              <button onClick={handleLogout} className={layoutStyles.logoutButton}>
-                Logout
-              </button>
+              <button onClick={handleLogout} className={layoutStyles.logoutButton}>Logout</button>
             </div>
           </header>
           <nav className={`${layoutStyles.sidebar} ${isLoggingOut ? layoutStyles.fadeOut : ''}`}>
@@ -74,8 +85,31 @@ export default function PlaceholderPage() {
           </nav>
           <main className={layoutStyles.mainWithSidebar}>
             <div className={styles.container}>
-              <h1 className={styles.title}>Under Construction</h1>
-              <p>This page is being restored—stay tuned, King!</p>
+              <h1 className={styles.title}>Bank Account</h1>
+              <div className={styles.section}>
+                <h2>Enter Bank Details</h2>
+                <input
+                  value={bankDetails.accountHolder}
+                  onChange={e => setBankDetails({ ...bankDetails, accountHolder: e.target.value })}
+                  placeholder="Account Holder Name"
+                />
+                <input
+                  value={bankDetails.bankName}
+                  onChange={e => setBankDetails({ ...bankDetails, bankName: e.target.value })}
+                  placeholder="Bank Name"
+                />
+                <input
+                  value={bankDetails.accountNumber}
+                  onChange={e => setBankDetails({ ...bankDetails, accountNumber: e.target.value })}
+                  placeholder="Account Number"
+                />
+                <input
+                  value={bankDetails.branchCode}
+                  onChange={e => setBankDetails({ ...bankDetails, branchCode: e.target.value })}
+                  placeholder="Branch Code"
+                />
+                <button onClick={saveBankDetails}>Save</button>
+              </div>
             </div>
           </main>
         </>
@@ -84,6 +118,6 @@ export default function PlaceholderPage() {
           <p>Please log in to view this page.</p>
         </main>
       )}
-    </>
+    </div>
   );
 }
