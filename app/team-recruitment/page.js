@@ -4,12 +4,15 @@ import styles from '../dashboard.module.css';
 import layoutStyles from '../layout.module.css';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { getNetworkData } from '../networkUtils';
 
 export default function TeamRecruitment() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState('User');
+  const [isSuperUser, setIsSuperUser] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [newRecruit, setNewRecruit] = useState({ name: '', joined: '', sales: 'R0', rank: '', gen: 'First Gen' });
   const router = useRouter();
 
   useEffect(() => {
@@ -18,6 +21,7 @@ export default function TeamRecruitment() {
     const name = localStorage.getItem('userName') || 'User';
     setIsLoggedIn(loggedIn);
     setUserName(name);
+    setIsSuperUser(name === 'Lwakhe Sangweni');
   }, []);
 
   const handleLogout = () => {
@@ -34,6 +38,16 @@ export default function TeamRecruitment() {
     }
   };
 
+  const addRecruit = () => {
+    const { networkData } = getNetworkData();
+    const genIndex = networkData.findIndex(g => g.generation === newRecruit.gen);
+    if (genIndex !== -1) {
+      networkData[genIndex].recruits.push(newRecruit);
+      localStorage.setItem('networkData', JSON.stringify(networkData));
+      setNewRecruit({ name: '', joined: '', sales: 'R0', rank: '', gen: 'First Gen' });
+    }
+  };
+
   if (!isMounted) return null;
 
   return (
@@ -44,9 +58,7 @@ export default function TeamRecruitment() {
             <h1 className={layoutStyles.headerTitle}>Trubel Perfumes</h1>
             <div className={layoutStyles.userProfile}>
               <span className={layoutStyles.userName}>{userName}</span>
-              <button onClick={handleLogout} className={layoutStyles.logoutButton}>
-                Logout
-              </button>
+              <button onClick={handleLogout} className={layoutStyles.logoutButton}>Logout</button>
             </div>
           </header>
           <nav className={`${layoutStyles.sidebar} ${isLoggingOut ? layoutStyles.fadeOut : ''}`}>
@@ -74,12 +86,43 @@ export default function TeamRecruitment() {
           </nav>
           <main className={layoutStyles.mainWithSidebar}>
             <div className={styles.container}>
-              <h1 className={styles.title}>Add New Recruit</h1>
-              <p>Name:</p>
-              <p>Joined Date:</p>
-              <p>Sales (R):</p>
-              <p>Rank:</p>
-              <p>Generation:</p>
+              <h1 className={styles.title}>Team Recruitment</h1>
+              {isSuperUser && (
+                <div className={styles.section}>
+                  <h2>Add New Recruit</h2>
+                  <input
+                    value={newRecruit.name}
+                    onChange={e => setNewRecruit({ ...newRecruit, name: e.target.value })}
+                    placeholder="Name"
+                  />
+                  <input
+                    type="date"
+                    value={newRecruit.joined}
+                    onChange={e => setNewRecruit({ ...newRecruit, joined: e.target.value })}
+                  />
+                  <input
+                    value={newRecruit.sales}
+                    onChange={e => setNewRecruit({ ...newRecruit, sales: `R${e.target.value.replace('R', '')}` })}
+                    placeholder="Sales (R)"
+                  />
+                  <input
+                    value={newRecruit.rank}
+                    onChange={e => setNewRecruit({ ...newRecruit, rank: e.target.value })}
+                    placeholder="Rank"
+                  />
+                  <select
+                    value={newRecruit.gen}
+                    onChange={e => setNewRecruit({ ...newRecruit, gen: e.target.value })}
+                  >
+                    <option value="First Gen">First Gen</option>
+                    <option value="Gen 2">Gen 2</option>
+                    <option value="Gen 3">Gen 3</option>
+                    <option value="Gen 4">Gen 4</option>
+                    <option value="Gen 5">Gen 5</option>
+                  </select>
+                  <button onClick={addRecruit}>Add Recruit</button>
+                </div>
+              )}
             </div>
           </main>
         </>
