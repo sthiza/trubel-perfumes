@@ -10,7 +10,7 @@ export default function CreateTicket() {
   const [userName, setUserName] = useState('User');
   const [isMounted, setIsMounted] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [ticket, setTicket] = useState({ subject: '', message: '' });
+  const [ticket, setTicket] = useState({ subject: '', message: '', priority: 'Medium' });
   const router = useRouter();
 
   useEffect(() => {
@@ -43,11 +43,12 @@ export default function CreateTicket() {
       message: ticket.message, 
       user: userName, 
       date: new Date().toISOString().split('T')[0], 
-      status: 'Open' 
+      status: 'Open',
+      priority: ticket.priority 
     };
     tickets.push(newTicket);
     localStorage.setItem('tickets', JSON.stringify(tickets));
-    setTicket({ subject: '', message: '' });
+    setTicket({ subject: '', message: '', priority: 'Medium' });
     alert('Ticket submitted!');
     router.push('/my-tickets');
   };
@@ -103,6 +104,14 @@ export default function CreateTicket() {
                   onChange={e => setTicket({ ...ticket, message: e.target.value })}
                   placeholder="Message"
                 />
+                <select
+                  value={ticket.priority}
+                  onChange={e => setTicket({ ...ticket, priority: e.target.value })}
+                >
+                  <option value="Low">Low</option>
+                  <option value="Medium">Medium</option>
+                  <option value="High">High</option>
+                </select>
                 <button onClick={submitTicket}>Submit</button>
               </div>
             </div>

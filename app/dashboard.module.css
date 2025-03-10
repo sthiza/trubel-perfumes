@@ -215,3 +215,49 @@
     flex-direction: column;
   }
 }
+
+.ticketTable { 
+  width: 100%; 
+  border-collapse: collapse; 
+  margin-top: 1rem; 
+}
+.ticketTable th, .ticketTable td { 
+  padding: 8px; 
+  border: 1px solid #ccc; 
+  text-align: left; 
+}
+.ticketTable th { 
+  background-color: #f4f4f4; 
+}
+.open { 
+  color: green; 
+  font-weight: bold; 
+}
+.resolved { 
+  color: red; 
+  font-weight: bold; 
+}
+
+.productRow {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1.5rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
+
+.productCard {
+  background-color: #f9fafb;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-width: 200px;
+  text-align: center;
+}
+
+.productImage {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  margin-bottom: 0.5rem;
+}

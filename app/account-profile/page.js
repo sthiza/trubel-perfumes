@@ -1,13 +1,14 @@
 "use client";
 import { useState, useEffect } from 'react';
 import styles from '../dashboard.module.css';
+import layoutStyles from '../layout.module.css';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import layoutStyles from '../layout.module.css';
 
-export default function PlaceholderPage() {
+export default function AccountProfile() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState('User');
+  const [email, setEmail] = useState('');
   const [isMounted, setIsMounted] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
@@ -16,8 +17,10 @@ export default function PlaceholderPage() {
     setIsMounted(true);
     const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
     const name = localStorage.getItem('userName') || 'User';
+    const storedEmail = localStorage.getItem('userEmail') || '';
     setIsLoggedIn(loggedIn);
     setUserName(name);
+    setEmail(storedEmail);
   }, []);
 
   const handleLogout = () => {
@@ -34,19 +37,23 @@ export default function PlaceholderPage() {
     }
   };
 
+  const saveProfile = () => {
+    localStorage.setItem('userName', userName);
+    localStorage.setItem('userEmail', email);
+    alert('Profile saved!');
+  };
+
   if (!isMounted) return null;
 
   return (
-    <>
+    <div>
       {isLoggedIn ? (
         <>
           <header className={`${layoutStyles.header} ${isLoggingOut ? layoutStyles.fadeOut : ''}`}>
             <h1 className={layoutStyles.headerTitle}>Trubel Perfumes</h1>
             <div className={layoutStyles.userProfile}>
               <span className={layoutStyles.userName}>{userName}</span>
-              <button onClick={handleLogout} className={layoutStyles.logoutButton}>
-                Logout
-              </button>
+              <button onClick={handleLogout} className={layoutStyles.logoutButton}>Logout</button>
             </div>
           </header>
           <nav className={`${layoutStyles.sidebar} ${isLoggingOut ? layoutStyles.fadeOut : ''}`}>
@@ -74,8 +81,23 @@ export default function PlaceholderPage() {
           </nav>
           <main className={layoutStyles.mainWithSidebar}>
             <div className={styles.container}>
-              <h1 className={styles.title}>Under Construction</h1>
-              <p>This page is being restored—stay tuned, King!</p>
+              <h1 className={styles.title}>Account Profile</h1>
+              <div className={styles.section}>
+                <h2>Edit Profile</h2>
+                <input
+                  value={userName}
+                  onChange={e => setUserName(e.target.value)}
+                  placeholder="Username"
+                  className={styles.searchInput}
+                />
+                <input
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="Email"
+                  className={styles.searchInput}
+                />
+                <button className={styles.actionButton} onClick={saveProfile}>Save</button>
+              </div>
             </div>
           </main>
         </>
@@ -84,6 +106,6 @@ export default function PlaceholderPage() {
           <p>Please log in to view this page.</p>
         </main>
       )}
-    </>
+    </div>
   );
 }

@@ -88,16 +88,30 @@ export default function MyTickets() {
               <h1 className={styles.title}>My Tickets</h1>
               <div className={styles.section}>
                 <h2>Your Tickets</h2>
-                <ul>
-                  {tickets.filter(t => t.user === userName || isSuperUser).map(t => (
-                    <li key={t.id}>
-                      {t.subject} - {t.date} ({t.status})
-                      {isSuperUser && t.status === 'Open' && (
-                        <button onClick={() => resolveTicket(t.id)}>Resolve</button>
-                      )}
-                    </li>
-                  ))}
-                </ul>
+                <table className={styles.ticketTable}>
+                  <thead>
+                    <tr>
+                      <th>Subject</th>
+                      <th>Date</th>
+                      <th>Priority</th>
+                      <th>Status</th>
+                      {isSuperUser && <th>Action</th>}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {tickets.filter(t => t.user === userName || isSuperUser).map(t => (
+                      <tr key={t.id}>
+                        <td>{t.subject}</td>
+                        <td>{t.date}</td>
+                        <td>{t.priority}</td>
+                        <td className={t.status === 'Open' ? styles.open : styles.resolved}>{t.status}</td>
+                        {isSuperUser && t.status === 'Open' && (
+                          <td><button onClick={() => resolveTicket(t.id)}>Resolve</button></td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           </main>

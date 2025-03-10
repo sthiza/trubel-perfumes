@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-import styles from './buyPerfumes.module.css';
+import styles from '../dashboard.module.css';
 import layoutStyles from '../layout.module.css';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -8,15 +8,12 @@ import { useRouter } from 'next/navigation';
 export default function BuyPerfumes() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState('User');
-  const [cart, setCart] = useState([]);
   const [isMounted, setIsMounted] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [cart, setCart] = useState([]);
+  const [address, setAddress] = useState({ street: '', city: '', postalCode: '' });
   const router = useRouter();
-
-  const perfumes = [
-    { id: 1, name: 'Perfume 1', price: 'R500', image: '/Perfume1.jpg' },
-    { id: 2, name: 'Perfume 2', price: 'R600', image: '/Perfume2.jpg' },
-    { id: 3, name: 'Perfume 3', price: 'R700', image: '/Perfume3.jpg' },
-  ];
 
   useEffect(() => {
     setIsMounted(true);
@@ -24,57 +21,80 @@ export default function BuyPerfumes() {
     const name = localStorage.getItem('userName') || 'User';
     setIsLoggedIn(loggedIn);
     setUserName(name);
+
+    let storedProducts = JSON.parse(localStorage.getItem('products') || '[]');
+    if (storedProducts.length === 0) {
+      storedProducts = [
+        { name: 'Perfume 1', price: 'R200', image: '/Perfume1.jpg', description: 'Fresh scent', category: 'Floral' },
+        { name: 'Perfume 2', price: 'R250', image: '/Perfume2.jpg', description: 'Bold aroma', category: 'Woody' },
+        { name: 'Perfume 3', price: 'R300', image: '/Perfume3.jpg', description: 'Sweet notes', category: 'Fruity' }
+      ];
+      localStorage.setItem('products', JSON.stringify(storedProducts));
+    }
+    setProducts(storedProducts);
+
     const storedCart = JSON.parse(localStorage.getItem('cart') || '[]');
-    setCart(Array.isArray(storedCart) ? storedCart : []);
+    setCart(storedCart);
   }, []);
 
   const handleLogout = () => {
     if (confirm('Are you sure you want to logout?')) {
-      localStorage.setItem('isLoggedIn', 'false');
-      localStorage.removeItem('userName');
-      localStorage.removeItem('orders');
-      localStorage.removeItem('cart');
-      setIsLoggedIn(false);
-      router.push('/');
+      setIsLoggingOut(true);
+      setTimeout(() => {
+        localStorage.setItem('isLoggedIn', 'false');
+        localStorage.removeItem('userName');
+        localStorage.removeItem('orders');
+        localStorage.removeItem('cart');
+        setIsLoggedIn(false);
+        router.push('/');
+      }, 500);
     }
   };
 
-  const addToCart = (perfume) => {
-    const updatedCart = [...cart, { ...perfume, date: new Date().toISOString() }];
+  const addToCart = (product) => {
+    const updatedCart = [...cart, product];
     setCart(updatedCart);
     localStorage.setItem('cart', JSON.stringify(updatedCart));
   };
 
-  const checkout = async () => {
-    try {
-      const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-      const total = cart.reduce((sum, item) => sum + parseFloat(item.price.slice(1)), 0).toFixed(2);
-      const newOrder = { id: Date.now(), items: cart, total: `R${total}`, status: 'Pending', date: new Date().toISOString() };
-      localStorage.setItem('orders', JSON.stringify([...orders, newOrder]));
-      localStorage.setItem('cart', '[]');
-      setCart([]);
-      await router.push('/my-orders'); // Ensure navigation completes
-    } catch (error) {
-      console.error('Checkout failed:', error);
+  const checkout = () => {
+    if (!address.street || !address.city || !address.postalCode) {
+      alert('Please fill in all address fields.');
+      return;
     }
+    const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    const total = cart.reduce((sum, p) => sum + parseFloat(p.price.slice(1)), 0);
+    const newOrder = {
+      id: Date.now(),
+      items: cart,
+      total: `R${total.toFixed(2)}`,
+      address: { ...address },
+      status: 'Pending',
+      date: new Date().toISOString().split('T')[0]
+    };
+    orders.push(newOrder);
+    localStorage.setItem('orders', JSON.stringify(orders));
+    setCart([]);
+    localStorage.setItem('cart', '[]');
+    setAddress({ street: '', city: '', postalCode: '' });
+    alert('Order placed!');
+    router.push('/my-orders');
   };
 
   if (!isMounted) return null;
 
   return (
-    <>
-      {isLoggedIn && (
+    <div>
+      {isLoggedIn ? (
         <>
-          <header className={layoutStyles.header}>
+          <header className={`${layoutStyles.header} ${isLoggingOut ? layoutStyles.fadeOut : ''}`}>
             <h1 className={layoutStyles.headerTitle}>Trubel Perfumes</h1>
             <div className={layoutStyles.userProfile}>
               <span className={layoutStyles.userName}>{userName}</span>
-              <button onClick={handleLogout} className={layoutStyles.logoutButton}>
-                Logout
-              </button>
+              <button onClick={handleLogout} className={layoutStyles.logoutButton}>Logout</button>
             </div>
           </header>
-          <nav className={layoutStyles.sidebar}>
+          <nav className={`${layoutStyles.sidebar} ${isLoggingOut ? layoutStyles.fadeOut : ''}`}>
             <ul className={layoutStyles.navList}>
               <li><Link href="/">Dashboard</Link></li>
               <li><Link href="/buy-perfumes">Buy Perfume(s)</Link></li>
@@ -97,38 +117,65 @@ export default function BuyPerfumes() {
               <li><Link href="/my-tickets">My Tickets</Link></li>
             </ul>
           </nav>
+          <main className={layoutStyles.mainWithSidebar}>
+            <div className={styles.container}>
+              <h1 className={styles.title}>Buy Perfumes</h1>
+              <div className={styles.section}>
+                <h2>Available Perfumes</h2>
+                <div className={styles.productRow}>
+                  {products.map((p, i) => (
+                    <div key={i} className={styles.productCard}>
+                      <img src={p.image} alt={p.name} className={styles.productImage} />
+                      <h3>{p.name}</h3>
+                      <p>{p.price}</p>
+                      <p>{p.description}</p>
+                      <button className={styles.actionButton} onClick={() => addToCart(p)}>Add to Cart</button>
+                    </div>
+                  ))}
+                </div>
+                <h2>Cart</h2>
+                {cart.length === 0 ? (
+                  <p>No items in cart.</p>
+                ) : (
+                  <div>
+                    <ul className={styles.detailsList}>
+                      {cart.map((p, i) => (
+                        <li key={i} className={styles.detailItem}>
+                          {p.name} - {p.price}
+                        </li>
+                      ))}
+                    </ul>
+                    <h2>Delivery Address</h2>
+                    <input
+                      value={address.street}
+                      onChange={e => setAddress({ ...address, street: e.target.value })}
+                      placeholder="Street Address"
+                      className={styles.searchInput}
+                    />
+                    <input
+                      value={address.city}
+                      onChange={e => setAddress({ ...address, city: e.target.value })}
+                      placeholder="City"
+                      className={styles.searchInput}
+                    />
+                    <input
+                      value={address.postalCode}
+                      onChange={e => setAddress({ ...address, postalCode: e.target.value })}
+                      placeholder="Postal Code"
+                      className={styles.searchInput}
+                    />
+                    <button className={styles.actionButton} onClick={checkout}>Checkout</button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </main>
         </>
+      ) : (
+        <main className={layoutStyles.mainFull}>
+          <p>Please log in to view this page.</p>
+        </main>
       )}
-      <main className={isLoggedIn ? layoutStyles.mainWithSidebar : layoutStyles.mainFull}>
-        <div className={styles.container}>
-          <h1 className={styles.title}>Buy Perfumes</h1>
-          <div className={styles.perfumeList}>
-            {perfumes.map(perfume => (
-              <div key={perfume.id} className={styles.perfumeCard}>
-                <img src={perfume.image} alt={perfume.name} className={styles.perfumeImage} />
-                <h2 className={styles.perfumeName}>{perfume.name}</h2>
-                <p className={styles.perfumePrice}>{perfume.price}</p>
-                <button onClick={() => addToCart(perfume)} className={styles.addButton}>
-                  Add to Cart
-                </button>
-              </div>
-            ))}
-          </div>
-          <div className={styles.cart}>
-            <h2 className={styles.cartTitle}>Cart ({cart.length})</h2>
-            {cart.map((item, index) => (
-              <div key={index} className={styles.cartItem}>
-                <p>{item.name} - {item.price}</p>
-              </div>
-            ))}
-            {cart.length > 0 && (
-              <button onClick={checkout} className={styles.checkoutButton}>
-                Checkout
-              </button>
-            )}
-          </div>
-        </div>
-      </main>
-    </>
+    </div>
   );
 }
