@@ -78,15 +78,15 @@ export default function Miscellaneous() {
                 <ul className={styles.detailsList}>
                   <li className={styles.detailItem}>
                     <strong>How do I track my order?</strong>
-                    <p>Check the \"My Orders\" page after checkout.</p>
+                    <p>Check the &quot;My Orders&quot; page after checkout.</p>
                   </li>
                   <li className={styles.detailItem}>
                     <strong>How do I contact support?</strong>
-                    <p>Use the \"Create Ticket\" page for assistance.</p>
+                    <p>Use the &quot;Create Ticket&quot; page for assistance.</p>
                   </li>
                   <li className={styles.detailItem}>
                     <strong>Can I change my bank details?</strong>
-                    <p>Yes, update them in \"Bank Account\".</p>
+                    <p>Yes, update them in &quot;Bank Account&quot;.</p>
                   </li>
                 </ul>
                 <h2>Policies</h2>
