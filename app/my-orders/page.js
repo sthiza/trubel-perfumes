@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-import styles from './orders.module.css';
+import styles from '../dashboard.module.css';
 import layoutStyles from '../layout.module.css';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -8,11 +8,9 @@ import { useRouter } from 'next/navigation';
 export default function MyOrders() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState('User');
-  const [orders, setOrders] = useState([]);
   const [isMounted, setIsMounted] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [filter, setFilter] = useState('All');
-  const [searchId, setSearchId] = useState('');
+  const [orders, setOrders] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -22,7 +20,7 @@ export default function MyOrders() {
     setIsLoggedIn(loggedIn);
     setUserName(name);
     const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-    setOrders(Array.isArray(storedOrders) ? storedOrders : []);
+    setOrders(storedOrders);
   }, []);
 
   const handleLogout = () => {
@@ -39,52 +37,17 @@ export default function MyOrders() {
     }
   };
 
-  const exportOrders = () => {
-    const filteredOrders = getFilteredOrders();
-    const csvRows = [
-      ['Order ID', 'Date', 'Items', 'Total', 'Status'],
-      ...filteredOrders.map(order => [
-        order.id,
-        order.date,
-        `"${order.items.map(item => item.name).join(', ')}"`,
-        order.total,
-        order.status,
-      ]),
-    ];
-    const csvContent = csvRows.map(row => row.join(',')).join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `orders_${filter.toLowerCase()}_${searchId || 'all'}_${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
-  };
-
-  const getFilteredOrders = () => {
-    let filtered = orders;
-    if (filter !== 'All') {
-      filtered = filtered.filter(order => order.status === filter);
-    }
-    if (searchId) {
-      filtered = filtered.filter(order => order.id.toString().includes(searchId));
-    }
-    return filtered;
-  };
-
-  const filteredOrders = getFilteredOrders();
-
   if (!isMounted) return null;
 
   return (
-    <>
+    <div>
       {isLoggedIn ? (
         <>
           <header className={`${layoutStyles.header} ${isLoggingOut ? layoutStyles.fadeOut : ''}`}>
             <h1 className={layoutStyles.headerTitle}>Trubel Perfumes</h1>
             <div className={layoutStyles.userProfile}>
               <span className={layoutStyles.userName}>{userName}</span>
-              <button onClick={handleLogout} className={layoutStyles.logoutButton}>
-                Logout
-              </button>
+              <button onClick={handleLogout} className={layoutStyles.logoutButton}>Logout</button>
             </div>
           </header>
           <nav className={`${layoutStyles.sidebar} ${isLoggingOut ? layoutStyles.fadeOut : ''}`}>
@@ -113,43 +76,38 @@ export default function MyOrders() {
           <main className={layoutStyles.mainWithSidebar}>
             <div className={styles.container}>
               <h1 className={styles.title}>My Orders</h1>
-              <div className={styles.controls}>
-                <input
-                  type="text"
-                  value={searchId}
-                  onChange={(e) => setSearchId(e.target.value)}
-                  placeholder="Search by Order ID"
-                  className={styles.searchInput}
-                />
-                <select
-                  value={filter}
-                  onChange={(e) => setFilter(e.target.value)}
-                  className={styles.filterSelect}
-                >
-                  <option value="All">All</option>
-                  <option value="Pending">Pending</option>
-                  <option value="Shipped">Shipped</option>
-                  <option value="Delivered">Delivered</option>
-                </select>
-                <button onClick={exportOrders} className={styles.exportButton}>
-                  Export Orders
-                </button>
+              <div className={styles.section}>
+                {orders.length === 0 ? (
+                  <p>No orders yet.</p>
+                ) : (
+                  <table className={styles.ticketTable}>
+                    <thead>
+                      <tr>
+                        <th>Order ID</th>
+                        <th>Date</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Address</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {orders.map((order) => (
+                        <tr key={order.id}>
+                          <td>{order.id}</td>
+                          <td>{order.date}</td>
+                          <td>{order.items.map(item => item.name).join(', ')}</td>
+                          <td>{order.total}</td>
+                          <td>{`${order.address.street}, ${order.address.city}, ${order.address.postalCode}`}</td>
+                          <td className={order.status === 'Pending' ? styles.open : styles.resolved}>
+                            {order.status}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
               </div>
-              {filteredOrders.length === 0 ? (
-                <p className={styles.empty}>No orders match this filter or search.</p>
-              ) : (
-                <div className={styles.orderList}>
-                  {filteredOrders.map(order => (
-                    <div key={order.id} className={styles.orderCard}>
-                      <p><strong>Order ID:</strong> {order.id}</p>
-                      <p><strong>Date:</strong> {new Date(order.date).toLocaleString()}</p>
-                      <p><strong>Items:</strong> {order.items.map(item => item.name).join(', ')}</p>
-                      <p><strong>Total:</strong> {order.total}</p>
-                      <p><strong>Status:</strong> <span className={styles.status} data-status={order.status}>{order.status}</span></p>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           </main>
         </>
@@ -158,6 +116,6 @@ export default function MyOrders() {
           <p>Please log in to view this page.</p>
         </main>
       )}
-    </>
+    </div>
   );
 }
