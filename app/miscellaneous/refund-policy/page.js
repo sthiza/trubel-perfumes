@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
-import styles from '../../dashboard.module.css';
-import layoutStyles from '../../layout.module.css';
+import styles from '../../dashboard.module.css'; // Adjusted path
+import layoutStyles from '../../layout.module.css'; // Adjusted path
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -74,7 +74,7 @@ export default function RefundPolicy() {
             <div className={styles.container}>
               <h1 className={styles.title}>Refund Policy</h1>
               <div className={styles.section}>
-                <p>At Trubel Perfumes, we want you to love your purchase. If you’re not satisfied, we offer refunds within 30 days of purchase. Products must be unopened, unused, and in their original packaging. To request a refund, submit a ticket via \"Create Ticket\" with your order ID and reason. Once approved, refunds are processed within 7-10 business days to your original payment method. Shipping costs are non-refundable. Contact us with any questions!</p>
+                <p>At Trubel Perfumes, we want you to love your purchase. If you’re not satisfied, we offer refunds within 30 days of purchase. Products must be unopened, unused, and in their original packaging. To request a refund, submit a ticket via &quot;Create Ticket&quot; with your order ID and reason. Once approved, refunds are processed within 7-10 business days to your original payment method. Shipping costs are non-refundable. Contact us with any questions!</p>
               </div>
             </div>
           </main>

@@ -1,11 +1,11 @@
 "use client";
 import { useState, useEffect } from 'react';
-import styles from '../../dashboard.module.css';
-import layoutStyles from '../../layout.module.css';
+import styles from '../../dashboard.module.css'; // Adjusted path
+import layoutStyles from '../../layout.module.css'; // Adjusted path
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-export default function RefundPolicy() {
+export default function TermsAndConditions() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState('User');
   const [isMounted, setIsMounted] = useState(false);
@@ -72,9 +72,9 @@ export default function RefundPolicy() {
           </nav>
           <main className={layoutStyles.mainWithSidebar}>
             <div className={styles.container}>
-              <h1 className={styles.title}>Refund Policy</h1>
+              <h1 className={styles.title}>Terms and Conditions</h1>
               <div className={styles.section}>
-                <p>At Trubel Perfumes, we want you to love your purchase. If you’re not satisfied, we offer refunds within 30 days of purchase. Products must be unopened, unused, and in their original packaging. To request a refund, submit a ticket via \"Create Ticket\" with your order ID and reason. Once approved, refunds are processed within 7-10 business days to your original payment method. Shipping costs are non-refundable. Contact us with any questions!</p>
+                <p>By using Trubel Perfumes, you agree to these terms. All sales are final unless eligible for refund/return per our policies. Products are sold &quot;as is&quot; for personal use—resale requires Super User approval. We’re not liable for misuse or allergic reactions; use at your own risk. Prices and availability may change without notice. For disputes, contact us via &quot;Create Ticket&quot;—we’ll resolve issues fairly. South African law applies.</p>
               </div>
             </div>
           </main>
