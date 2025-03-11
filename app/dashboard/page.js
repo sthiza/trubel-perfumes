@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import styles from '../dashboard.module.css';
 import layoutStyles from '../layout.module.css';
+import { FaBox, FaMoneyBillWave, FaUsers, FaArrowRight } from 'react-icons/fa';
 
 export default function Dashboard() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -74,38 +75,95 @@ export default function Dashboard() {
           <main className={layoutStyles.mainWithSidebar}>
             <div className={styles.container}>
               <h1 className={styles.title}>Dashboard</h1>
-              <p style={{ fontSize: '18px', marginBottom: '20px' }}>
+              <p style={{ fontSize: '18px', marginBottom: '20px', color: '#ffd700' }}>
                 Welcome back, {userName}! Your scent empire awaits.
               </p>
               {/* Stats Cards */}
               <div style={{ display: 'flex', gap: '20px', marginBottom: '30px' }}>
-                <div style={{ flex: 1, padding: '15px', border: '1px solid #ddd', borderRadius: '5px' }}>
+                <div style={{ 
+                  flex: 1, 
+                  padding: '15px', 
+                  background: '#4b0082', 
+                  color: 'white', 
+                  borderRadius: '8px', 
+                  boxShadow: '0 4px 6px rgba(0,0,0,0.1)' 
+                }}>
+                  <FaBox style={{ fontSize: '24px', marginBottom: '10px' }} />
                   <h3>My Orders</h3>
-                  <p>5 Pending</p> {/* Dummy data */}
+                  <p>5 Pending</p>
                 </div>
-                <div style={{ flex: 1, padding: '15px', border: '1px solid #ddd', borderRadius: '5px' }}>
+                <div style={{ 
+                  flex: 1, 
+                  padding: '15px', 
+                  background: '#4b0082', 
+                  color: 'white', 
+                  borderRadius: '8px', 
+                  boxShadow: '0 4px 6px rgba(0,0,0,0.1)' 
+                }}>
+                  <FaMoneyBillWave style={{ fontSize: '24px', marginBottom: '10px' }} />
                   <h3>Team Sales</h3>
-                  <p>R 12,500</p> {/* Dummy data */}
+                  <p>R 12,500</p>
                 </div>
-                <div style={{ flex: 1, padding: '15px', border: '1px solid #ddd', borderRadius: '5px' }}>
+                <div style={{ 
+                  flex: 1, 
+                  padding: '15px', 
+                  background: '#4b0082', 
+                  color: 'white', 
+                  borderRadius: '8px', 
+                  boxShadow: '0 4px 6px rgba(0,0,0,0.1)' 
+                }}>
+                  <FaUsers style={{ fontSize: '24px', marginBottom: '10px' }} />
                   <h3>Network Size</h3>
-                  <p>25 Members</p> {/* Dummy data */}
+                  <p>25 Members</p>
                 </div>
               </div>
               {/* Quick Links */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px' }}>
                 <Link href="/buy-perfumes" style={{ textDecoration: 'none' }}>
-                  <div style={{ padding: '20px', background: '#f5f5f5', borderRadius: '5px', textAlign: 'center' }}>
+                  <div style={{ 
+                    padding: '20px', 
+                    background: '#ffd700', 
+                    color: '#4b0082', 
+                    borderRadius: '8px', 
+                    textAlign: 'center',
+                    transition: 'transform 0.2s',
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                  >
+                    <FaArrowRight style={{ fontSize: '20px', marginBottom: '10px' }} />
                     <h4>Buy Perfumes</h4>
                   </div>
                 </Link>
                 <Link href="/my-orders" style={{ textDecoration: 'none' }}>
-                  <div style={{ padding: '20px', background: '#f5f5f5', borderRadius: '5px', textAlign: 'center' }}>
+                  <div style={{ 
+                    padding: '20px', 
+                    background: '#ffd700', 
+                    color: '#4b0082', 
+                    borderRadius: '8px', 
+                    textAlign: 'center',
+                    transition: 'transform 0.2s',
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                  >
+                    <FaArrowRight style={{ fontSize: '20px', marginBottom: '10px' }} />
                     <h4>My Orders</h4>
                   </div>
                 </Link>
                 <Link href="/my-network/first-gen" style={{ textDecoration: 'none' }}>
-                  <div style={{ padding: '20px', background: '#f5f5f5', borderRadius: '5px', textAlign: 'center' }}>
+                  <div style={{ 
+                    padding: '20px', 
+                    background: '#ffd700', 
+                    color: '#4b0082', 
+                    borderRadius: '8px', 
+                    textAlign: 'center',
+                    transition: 'transform 0.2s',
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                  >
+                    <FaArrowRight style={{ fontSize: '20px', marginBottom: '10px' }} />
                     <h4>My Network</h4>
                   </div>
                 </Link>
