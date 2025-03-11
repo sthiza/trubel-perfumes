@@ -28,30 +28,21 @@ export default function BuyPerfumes() {
     let storedProducts = JSON.parse(localStorage.getItem('products') || '[]');
     if (storedProducts.length === 0) {
       storedProducts = [
-        {
-          id: 1,
-          name: 'Royal Oud',
-          price: 200.00,
-          image: 'https://images.unsplash.com/photo-1608248543803-5a93f848e97a?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
-          description: 'A luxurious blend of deep oud and warm spices, evoking royalty and mystery. Perfect for evening wear.',
-          category: 'Oriental',
-        },
-        {
-          id: 2,
-          name: 'Midnight Rose',
-          price: 250.00,
-          image: 'https://images.unsplash.com/photo-1587017539504-1304d5e9ea36?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
-          description: 'Velvety rose petals dance with hints of musk under a moonlit sky. A romantic, floral escape.',
-          category: 'Floral',
-        },
-        {
-          id: 3,
-          name: 'Golden Amber',
-          price: 300.00,
-          image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
-          description: 'Rich amber fused with sweet vanilla and a touch of citrus. A golden glow for any occasion.',
-          category: 'Woody',
-        },
+        { id: 1, name: 'Midnight Serenade', price: 220.00, image: '/perfume1.jpg', description: 'A captivating blend of dark vanilla, amber, and musk, with hints of black currant. Perfect for those who love mysterious and alluring scents.', category: 'Oriental' },
+        { id: 2, name: 'Golden Horizon', price: 190.00, image: '/perfume2.jpg', description: 'A warm and sunny fragrance featuring notes of bergamot, sandalwood, and a touch of honey. Ideal for daytime wear.', category: 'Woody' },
+        { id: 3, name: 'Velvet Bloom', price: 250.00, image: '/perfume3.jpg', description: 'A luxurious floral scent with peony, jasmine, and a base of creamy vanilla. Soft, elegant, and timeless.', category: 'Floral' },
+        { id: 4, name: 'Ocean Whisper', price: 180.00, image: '/perfume4.jpg', description: 'A fresh aquatic fragrance with sea salt, green apple, and marine accord. Perfect for a refreshing, clean vibe.', category: 'Aquatic' },
+        { id: 5, name: 'Ember Glow', price: 260.00, image: '/perfume5.jpg', description: 'A spicy and woody scent with cinnamon, clove, and smoky cedarwood. Great for cozy evenings.', category: 'Spicy' },
+        { id: 6, name: 'Citrus Mirage', price: 200.00, image: '/perfume6.jpg', description: 'A zesty blend of lemon, grapefruit, and mandarin, balanced with a hint of vetiver. Energizing and vibrant.', category: 'Citrus' },
+        { id: 7, name: 'Mystic Rose', price: 270.00, image: '/perfume7.jpg', description: 'A romantic fragrance with Damask rose, oud, and a touch of saffron. Exotic and enchanting.', category: 'Floral' },
+        { id: 8, name: 'Frosted Woods', price: 195.00, image: '/perfume8.jpg', description: 'A cool, earthy scent with pine, eucalyptus, and a whisper of mint. Perfect for winter days.', category: 'Woody' },
+        { id: 9, name: 'Sunlit Garden', price: 210.00, image: '/perfume9.jpg', description: 'A cheerful floral bouquet of lavender, geranium, and orange blossom. Bright and uplifting.', category: 'Floral' },
+        { id: 10, name: 'Crimson Noir', price: 280.00, image: '/perfume10.jpg', description: 'A bold and seductive fragrance with black cherry, leather, and patchouli. For the daring and confident.', category: 'Oriental' },
+        { id: 11, name: 'Breeze of Bliss', price: 185.00, image: '/perfume11.jpg', description: 'A light, airy scent with white tea, pear, and a hint of musk. Simple and soothing.', category: 'Fruity' },
+        { id: 12, name: 'Enchanted Orchid', price: 240.00, image: '/perfume12.jpg', description: 'A sophisticated floral with orchid, vanilla, and a touch of sandalwood. Elegant and modern.', category: 'Floral' },
+        { id: 13, name: 'Sapphire Sky', price: 205.00, image: '/perfume13.jpg', description: 'A crisp, clean fragrance with blue sage, juniper, and a hint of ozone. Refreshing and invigorating.', category: 'Aquatic' },
+        { id: 14, name: 'Amber Dusk', price: 265.00, image: '/perfume14.jpg', description: 'A warm, resinous scent with amber, tonka bean, and a touch of incense. Perfect for evening wear.', category: 'Oriental' },
+        { id: 15, name: 'Lush Meadow', price: 215.00, image: '/perfume15.jpg', description: 'A green, earthy fragrance with fresh-cut grass, wildflowers, and a hint of citrus. Nature-inspired and revitalizing.', category: 'Green' },
       ];
       localStorage.setItem('products', JSON.stringify(storedProducts));
     }
@@ -187,7 +178,7 @@ export default function BuyPerfumes() {
               <h2 className={styles.title}>Buy Expensive Perfumes</h2>
               <div style={{ marginBottom: '40px' }}>
                 <h3 style={{ color: '#ffd700', marginBottom: '20px' }}>Available Perfumes</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '30px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '30px' }}>
                   {products.map((product) => (
                     <div
                       key={product.id}
@@ -200,8 +191,8 @@ export default function BuyPerfumes() {
                         boxShadow: '0 6px 12px rgba(0,0,0,0.2)',
                         transition: 'transform 0.2s',
                       }}
-                      onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                      onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                      onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
                     >
                       <img
                         src={product.image}
