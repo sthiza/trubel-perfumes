@@ -1,7 +1,8 @@
 "use client";
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; // Added React import
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image'; // Added Image import
 import axios from 'axios';
 import styles from '../styles/auth.module.css';
 import layoutStyles from '../layout.module.css';
@@ -202,10 +203,12 @@ export default function BuyPerfumes() {
                       onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
                       onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
                     >
-                      <img
+                      <Image
                         src={product.image}
                         alt={product.name}
-                        style={{ width: '100%', maxWidth: '150px', height: 'auto', borderRadius: '8px', marginBottom: '10px' }}
+                        width={150}
+                        height={150}
+                        style={{ borderRadius: '8px', marginBottom: '10px' }}
                       />
                       <h3 style={{ margin: '0 0 8px', fontSize: '1.2em' }}>{product.name}</h3>
                       <p style={{ margin: '0 0 8px', fontSize: '1em', color: '#ffd700' }}>R {product.price.toFixed(2)}</p>
