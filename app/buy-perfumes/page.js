@@ -28,9 +28,30 @@ export default function BuyPerfumes() {
     let storedProducts = JSON.parse(localStorage.getItem('products') || '[]');
     if (storedProducts.length === 0) {
       storedProducts = [
-        { id: 1, name: 'Perfume 1', price: 200.00, image: 'https://via.placeholder.com/150', description: 'Fresh scent', category: 'Floral' },
-        { id: 2, name: 'Perfume 2', price: 250.00, image: 'https://via.placeholder.com/150', description: 'Bold aroma', category: 'Woody' },
-        { id: 3, name: 'Perfume 3', price: 300.00, image: 'https://via.placeholder.com/150', description: 'Sweet notes', category: 'Fruity' },
+        {
+          id: 1,
+          name: 'Royal Oud',
+          price: 200.00,
+          image: 'https://images.unsplash.com/photo-1608248543803-5a93f848e97a?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
+          description: 'A luxurious blend of deep oud and warm spices, evoking royalty and mystery. Perfect for evening wear.',
+          category: 'Oriental',
+        },
+        {
+          id: 2,
+          name: 'Midnight Rose',
+          price: 250.00,
+          image: 'https://images.unsplash.com/photo-1587017539504-1304d5e9ea36?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
+          description: 'Velvety rose petals dance with hints of musk under a moonlit sky. A romantic, floral escape.',
+          category: 'Floral',
+        },
+        {
+          id: 3,
+          name: 'Golden Amber',
+          price: 300.00,
+          image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
+          description: 'Rich amber fused with sweet vanilla and a touch of citrus. A golden glow for any occasion.',
+          category: 'Woody',
+        },
       ];
       localStorage.setItem('products', JSON.stringify(storedProducts));
     }
@@ -87,7 +108,6 @@ export default function BuyPerfumes() {
         form.appendChild(input);
       });
 
-      // Save order before redirect (simulate success for now)
       const orders = JSON.parse(localStorage.getItem('orders') || '[]');
       const newOrder = {
         id: Date.now(),
@@ -165,83 +185,90 @@ export default function BuyPerfumes() {
           <main className={layoutStyles.mainWithSidebar}>
             <div className={styles.container}>
               <h2 className={styles.title}>Buy Expensive Perfumes</h2>
-              <div style={{ marginBottom: '30px' }}>
-                <h3 style={{ color: '#ffd700', marginBottom: '15px' }}>Available Perfumes</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+              <div style={{ marginBottom: '40px' }}>
+                <h3 style={{ color: '#ffd700', marginBottom: '20px' }}>Available Perfumes</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '30px' }}>
                   {products.map((product) => (
                     <div
                       key={product.id}
                       style={{
                         background: '#4b0082',
                         color: 'white',
-                        padding: '15px',
-                        borderRadius: '8px',
+                        padding: '20px',
+                        borderRadius: '10px',
                         textAlign: 'center',
-                        boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                        boxShadow: '0 6px 12px rgba(0,0,0,0.2)',
+                        transition: 'transform 0.2s',
                       }}
+                      onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                      onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                     >
-                      <img src={product.image} alt={product.name} style={{ width: '100%', borderRadius: '5px' }} />
-                      <h3 style={{ margin: '10px 0' }}>{product.name}</h3>
-                      <p>R {product.price.toFixed(2)}</p>
-                      <p>{product.description}</p>
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        style={{ width: '100%', maxWidth: '200px', height: 'auto', borderRadius: '8px', marginBottom: '15px' }}
+                      />
+                      <h3 style={{ margin: '0 0 10px', fontSize: '1.5em' }}>{product.name}</h3>
+                      <p style={{ margin: '0 0 10px', fontSize: '1.2em', color: '#ffd700' }}>R {product.price.toFixed(2)}</p>
+                      <p style={{ margin: '0 0 15px', fontSize: '1em', lineHeight: '1.4' }}>{product.description}</p>
                       <button
                         onClick={() => addToCart(product)}
                         className={styles.button}
-                        style={{ marginTop: '10px' }}
+                        style={{ padding: '10px 20px', fontSize: '1em' }}
                       >
-                        <FaShoppingCart style={{ marginRight: '5px' }} /> Add to Cart
+                        <FaShoppingCart style={{ marginRight: '8px' }} /> Add to Cart
                       </button>
                     </div>
                   ))}
                 </div>
               </div>
               <div style={{ color: 'white' }}>
-                <h3 style={{ color: '#ffd700', marginBottom: '15px' }}>Cart ({cart.length})</h3>
+                <h3 style={{ color: '#ffd700', marginBottom: '20px' }}>Cart ({cart.length})</h3>
                 {cart.length === 0 ? (
                   <p>Cart is empty</p>
                 ) : (
                   <>
                     <ul style={{ listStyle: 'none', padding: 0 }}>
                       {cart.map((item, index) => (
-                        <li key={index} style={{ margin: '10px 0' }}>
+                        <li key={index} style={{ margin: '10px 0', fontSize: '1.1em' }}>
                           {item.name} - R {item.price.toFixed(2)}
                         </li>
                       ))}
                     </ul>
-                    <p>Total: R {cart.reduce((sum, item) => sum + item.price, 0).toFixed(2)}</p>
+                    <p style={{ fontSize: '1.2em' }}>Total: R {cart.reduce((sum, item) => sum + item.price, 0).toFixed(2)}</p>
                     <h3 style={{ color: '#ffd700', marginBottom: '15px' }}>Delivery Address</h3>
                     <input
                       value={address.street}
                       onChange={(e) => setAddress({ ...address, street: e.target.value })}
                       placeholder="Street Address"
                       className={styles.input}
-                      style={{ marginBottom: '10px' }}
+                      style={{ marginBottom: '15px', padding: '12px' }}
                     />
                     <input
                       value={address.city}
                       onChange={(e) => setAddress({ ...address, city: e.target.value })}
                       placeholder="City"
                       className={styles.input}
-                      style={{ marginBottom: '10px' }}
+                      style={{ marginBottom: '15px', padding: '12px' }}
                     />
                     <input
                       value={address.postalCode}
                       onChange={(e) => setAddress({ ...address, postalCode: e.target.value })}
                       placeholder="Postal Code"
                       className={styles.input}
-                      style={{ marginBottom: '10px' }}
+                      style={{ marginBottom: '15px', padding: '12px' }}
                     />
-                    <button onClick={handleCheckout} className={styles.button}>
+                    <button onClick={handleCheckout} className={styles.button} style={{ padding: '12px 24px', fontSize: '1.1em' }}>
                       Checkout with PayFast
                     </button>
                   </>
                 )}
               </div>
-              {message && <p style={{ color: '#ffd700', marginTop: '15px' }}>{message}</p>}
+              {message && <p style={{ color: '#ffd700', marginTop: '20px', fontSize: '1.1em' }}>{message}</p>}
               <button
                 onClick={() => router.push('/dashboard')}
                 className={styles.button}
-                style={{ marginTop: '20px' }}
+                style={{ marginTop: '30px', padding: '12px 24px', fontSize: '1.1em' }}
               >
                 Back to Dashboard
               </button>
