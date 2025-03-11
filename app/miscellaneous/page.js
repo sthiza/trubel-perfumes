@@ -49,7 +49,7 @@ export default function Miscellaneous() {
           </header>
           <nav className={`${layoutStyles.sidebar} ${isLoggingOut ? layoutStyles.fadeOut : ''}`}>
             <ul className={layoutStyles.navList}>
-              <li><Link href="/">Dashboard</Link></li>
+              <li><Link href="/dashboard">Dashboard</Link></li>
               <li><Link href="/buy-perfumes">Buy Perfume(s)</Link></li>
               <li><Link href="/my-orders">My Orders</Link></li>
               <li><Link href="/my-network/first-gen">First Gen</Link></li>

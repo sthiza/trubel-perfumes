@@ -9,7 +9,7 @@ export default function Home() {
 
   useEffect(() => {
     if (localStorage.getItem('isLoggedIn') === 'true') {
-      router.push('/miscellaneous');
+      router.push('/dashboard'); // Changed to /dashboard
     }
   }, [router]);
 
