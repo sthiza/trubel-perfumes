@@ -5,7 +5,7 @@ import Link from 'next/link';
 import axios from 'axios';
 import styles from '../styles/auth.module.css';
 import layoutStyles from '../layout.module.css';
-import { FaShoppingCart, FaBox, FaMoneyBillWave, FaUsers } from 'react-icons/fa';
+import { FaShoppingCart, FaBox, FaMoneyBillWave, FaUsers, FaTrash } from 'react-icons/fa';
 
 export default function BuyPerfumes() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -58,6 +58,14 @@ export default function BuyPerfumes() {
     setCart(updatedCart);
     localStorage.setItem('cart', JSON.stringify(updatedCart));
     setMessage(`${product.name} added to cart!`);
+    setTimeout(() => setMessage(''), 3000);
+  };
+
+  const removeFromCart = (index) => {
+    const updatedCart = cart.filter((_, i) => i !== index);
+    setCart(updatedCart);
+    localStorage.setItem('cart', JSON.stringify(updatedCart));
+    setMessage('Item removed from cart!');
     setTimeout(() => setMessage(''), 3000);
   };
 
@@ -174,18 +182,18 @@ export default function BuyPerfumes() {
             </ul>
           </nav>
           <main className={layoutStyles.mainWithSidebar}>
-            <div className={styles.container}>
+            <div className={styles.container} style={{ maxWidth: '1200px', margin: '0 auto' }}>
               <h2 className={styles.title}>Buy Expensive Perfumes</h2>
               <div style={{ marginBottom: '40px' }}>
                 <h3 style={{ color: '#ffd700', marginBottom: '20px' }}>Available Perfumes</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '30px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '20px' }}>
                   {products.map((product) => (
                     <div
                       key={product.id}
                       style={{
                         background: '#4b0082',
                         color: 'white',
-                        padding: '20px',
+                        padding: '15px',
                         borderRadius: '10px',
                         textAlign: 'center',
                         boxShadow: '0 6px 12px rgba(0,0,0,0.2)',
@@ -197,69 +205,81 @@ export default function BuyPerfumes() {
                       <img
                         src={product.image}
                         alt={product.name}
-                        style={{ width: '100%', maxWidth: '200px', height: 'auto', borderRadius: '8px', marginBottom: '15px' }}
+                        style={{ width: '100%', maxWidth: '150px', height: 'auto', borderRadius: '8px', marginBottom: '10px' }}
                       />
-                      <h3 style={{ margin: '0 0 10px', fontSize: '1.5em' }}>{product.name}</h3>
-                      <p style={{ margin: '0 0 10px', fontSize: '1.2em', color: '#ffd700' }}>R {product.price.toFixed(2)}</p>
-                      <p style={{ margin: '0 0 15px', fontSize: '1em', lineHeight: '1.4' }}>{product.description}</p>
+                      <h3 style={{ margin: '0 0 8px', fontSize: '1.2em' }}>{product.name}</h3>
+                      <p style={{ margin: '0 0 8px', fontSize: '1em', color: '#ffd700' }}>R {product.price.toFixed(2)}</p>
+                      <p style={{ margin: '0 0 10px', fontSize: '0.9em', lineHeight: '1.3' }}>{product.description}</p>
                       <button
                         onClick={() => addToCart(product)}
                         className={styles.button}
-                        style={{ padding: '10px 20px', fontSize: '1em' }}
+                        style={{ padding: '8px 16px', fontSize: '0.9em' }}
                       >
-                        <FaShoppingCart style={{ marginRight: '8px' }} /> Add to Cart
+                        <FaShoppingCart style={{ marginRight: '6px' }} /> Add to Cart
                       </button>
                     </div>
                   ))}
                 </div>
               </div>
-              <div style={{ color: 'white' }}>
+              <div style={{ color: 'white', background: '#4b0082', padding: '20px', borderRadius: '10px', boxShadow: '0 6px 12px rgba(0,0,0,0.2)' }}>
                 <h3 style={{ color: '#ffd700', marginBottom: '20px' }}>Cart ({cart.length})</h3>
                 {cart.length === 0 ? (
                   <p>Cart is empty</p>
                 ) : (
                   <>
-                    <ul style={{ listStyle: 'none', padding: 0 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '15px', marginBottom: '20px' }}>
+                      <span style={{ fontWeight: 'bold', color: '#ffd700' }}>Item</span>
+                      <span style={{ fontWeight: 'bold', color: '#ffd700' }}>Price</span>
+                      <span style={{ fontWeight: 'bold', color: '#ffd700' }}>Quantity</span>
+                      <span style={{ fontWeight: 'bold', color: '#ffd700' }}>Actions</span>
                       {cart.map((item, index) => (
-                        <li key={index} style={{ margin: '10px 0', fontSize: '1.1em' }}>
-                          {item.name} - R {item.price.toFixed(2)}
-                        </li>
+                        <React.Fragment key={index}>
+                          <span>{item.name}</span>
+                          <span>R {item.price.toFixed(2)}</span>
+                          <span>1</span>
+                          <button
+                            onClick={() => removeFromCart(index)}
+                            style={{ background: '#ffd700', color: '#4b0082', padding: '5px 10px', borderRadius: '5px', border: 'none', cursor: 'pointer' }}
+                          >
+                            <FaTrash />
+                          </button>
+                        </React.Fragment>
                       ))}
-                    </ul>
-                    <p style={{ fontSize: '1.2em' }}>Total: R {cart.reduce((sum, item) => sum + item.price, 0).toFixed(2)}</p>
+                    </div>
+                    <p style={{ fontSize: '1.2em', textAlign: 'right' }}>Total: R {cart.reduce((sum, item) => sum + item.price, 0).toFixed(2)}</p>
                     <h3 style={{ color: '#ffd700', marginBottom: '15px' }}>Delivery Address</h3>
                     <input
                       value={address.street}
                       onChange={(e) => setAddress({ ...address, street: e.target.value })}
                       placeholder="Street Address"
                       className={styles.input}
-                      style={{ marginBottom: '15px', padding: '12px' }}
+                      style={{ marginBottom: '15px', padding: '12px', width: '100%' }}
                     />
                     <input
                       value={address.city}
                       onChange={(e) => setAddress({ ...address, city: e.target.value })}
                       placeholder="City"
                       className={styles.input}
-                      style={{ marginBottom: '15px', padding: '12px' }}
+                      style={{ marginBottom: '15px', padding: '12px', width: '100%' }}
                     />
                     <input
                       value={address.postalCode}
                       onChange={(e) => setAddress({ ...address, postalCode: e.target.value })}
                       placeholder="Postal Code"
                       className={styles.input}
-                      style={{ marginBottom: '15px', padding: '12px' }}
+                      style={{ marginBottom: '15px', padding: '12px', width: '100%' }}
                     />
-                    <button onClick={handleCheckout} className={styles.button} style={{ padding: '12px 24px', fontSize: '1.1em' }}>
+                    <button onClick={handleCheckout} className={styles.button} style={{ padding: '12px 24px', fontSize: '1.1em', width: '100%' }}>
                       Checkout with PayFast
                     </button>
                   </>
                 )}
               </div>
-              {message && <p style={{ color: '#ffd700', marginTop: '20px', fontSize: '1.1em' }}>{message}</p>}
+              {message && <p style={{ color: '#ffd700', marginTop: '20px', fontSize: '1.1em', textAlign: 'center' }}>{message}</p>}
               <button
                 onClick={() => router.push('/dashboard')}
                 className={styles.button}
-                style={{ marginTop: '30px', padding: '12px 24px', fontSize: '1.1em' }}
+                style={{ marginTop: '30px', padding: '12px 24px', fontSize: '1.1em', width: '100%' }}
               >
                 Back to Dashboard
               </button>
