@@ -13,64 +13,52 @@ export default function MyOffice() {
   const [monthlySales, setMonthlySales] = useState({ personal: 0, team: 0 });
   const [currentRank, setCurrentRank] = useState('Starter');
   const [isMounted, setIsMounted] = useState(false);
-  const [error, setError] = useState(null); // Add error state
   const router = useRouter();
 
   useEffect(() => {
+    setIsMounted(true);
+    if (typeof window === 'undefined') return;
+
+    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    setIsLoggedIn(loggedIn);
+    setUserName(localStorage.getItem('userName') || 'User');
+
+    const userId = localStorage.getItem('email') || 'USER' + Math.random().toString(36).substr(2, 9);
+    const isAdmin = userId === 'admin@example.com';
+    const refId = isAdmin ? 'TrubelPerfumes' : userId.replace(/[^a-zA-Z0-9]/g, '');
+    const link = `${window.location.origin}/ref=${refId}`;
+    setReferralLink(link);
+
+    // Fetch Level 1 recruits (stubbed—search localStorage for upline matches)
+    const allUsers = JSON.parse(localStorage.getItem('users') || '[]');
+    const recruits = allUsers.filter(user => user.upline === refId).map(user => ({
+      id: user.email,
+      name: user.name,
+      sales: user.sales || 0, // Placeholder—real sales later
+    }));
+    setLevel1Recruits(recruits.length > 0 ? recruits : [
+      { id: 'rec1', name: 'JohnDoe', sales: 2000 },
+      { id: 'rec2', name: 'JaneSmith', sales: 1500 },
+    ]);
+
+    let personalSales = 0;
     try {
-      console.log('useEffect running...');
-      setIsMounted(true);
-
-      if (typeof window === 'undefined') {
-        console.log('Server-side render, skipping...');
-        return;
-      }
-
-      const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
-      console.log('isLoggedIn:', loggedIn);
-      setIsLoggedIn(loggedIn);
-      setUserName(localStorage.getItem('userName') || 'User');
-
-      const userId = localStorage.getItem('email') || 'USER' + Math.random().toString(36).substr(2, 9);
-      const isAdmin = userId === 'admin@example.com';
-      const refId = isAdmin ? 'TrubelPerfumes' : userId.replace(/[^a-zA-Z0-9]/g, '');
-      const link = `${window.location.origin}/ref=${refId}`;
-      console.log('Referral link:', link);
-      setReferralLink(link);
-
-      const mockRecruits = [
-        { id: 'rec1', name: 'JohnDoe', sales: 2000 },
-        { id: 'rec2', name: 'JaneSmith', sales: 1500 },
-      ];
-      setLevel1Recruits(mockRecruits);
-
-      let personalSales = 0;
-      try {
-        const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-        console.log('Stored orders:', storedOrders);
-        personalSales = storedOrders.reduce((sum, order) => sum + parseFloat(order.total.replace('R', '') || 0), 0);
-      } catch (e) {
-        console.error('Error parsing orders:', e);
-      }
-      const teamSales = mockRecruits.reduce((sum, recruit) => sum + recruit.sales, 0);
-      setMonthlySales({ personal: personalSales, team: teamSales });
-
-      const totalSales = personalSales + teamSales;
-      console.log('Total sales:', totalSales);
-      if (totalSales >= 150000) setCurrentRank('President');
-      else if (totalSales >= 100000) setCurrentRank('Director');
-      else if (totalSales >= 53000) setCurrentRank('Manager');
-      else if (totalSales >= 38000) setCurrentRank('Supervisor');
-      else if (totalSales >= 13500) setCurrentRank('Team Leader');
-
-      if (!loggedIn) {
-        console.log('Redirecting to login...');
-        router.push('/login');
-      }
-    } catch (err) {
-      console.error('useEffect error:', err);
-      setError(err.message);
+      const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+      personalSales = storedOrders.reduce((sum, order) => sum + parseFloat(order.total.replace('R', '') || 0), 0);
+    } catch (e) {
+      console.error('Error parsing orders:', e);
     }
+    const teamSales = recruits.length > 0 ? recruits.reduce((sum, recruit) => sum + recruit.sales, 0) : 3500; // Mock if no recruits
+    setMonthlySales({ personal: personalSales, team: teamSales });
+
+    const totalSales = personalSales + teamSales;
+    if (totalSales >= 150000) setCurrentRank('President');
+    else if (totalSales >= 100000) setCurrentRank('Director');
+    else if (totalSales >= 53000) setCurrentRank('Manager');
+    else if (totalSales >= 38000) setCurrentRank('Supervisor');
+    else if (totalSales >= 13500) setCurrentRank('Team Leader');
+
+    if (!loggedIn) router.push('/login');
   }, [router]);
 
   const copyToClipboard = () => {
@@ -80,17 +68,8 @@ export default function MyOffice() {
     }
   };
 
-  if (!isMounted) {
-    console.log('Not mounted yet...');
-    return null;
-  }
-  if (error) {
-    return <p style={{ color: 'red' }}>Error: {error}</p>;
-  }
-  if (!isLoggedIn) {
-    console.log('Showing redirect message...');
-    return <p style={{ color: '#ffd700' }}>Redirecting to login...</p>;
-  }
+  if (!isMounted) return null;
+  if (!isLoggedIn) return <p style={{ color: '#ffd700' }}>Redirecting to login...</p>;
 
   return (
     <div>

@@ -8,18 +8,21 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const router = useRouter();
-  const { id } = useParams(); // Grabs the "id" from /ref/[id]
+  const { id } = useParams();
 
   const handleRegister = () => {
     if (!email || !password) {
       setMessage('Please fill in all fields!');
       return;
     }
-    // Mock registration—tie to upliner
+    const newUser = { email, name: email.split('@')[0], upline: id, sales: 0 };
+    const allUsers = JSON.parse(localStorage.getItem('users') || '[]');
+    allUsers.push(newUser);
+    localStorage.setItem('users', JSON.stringify(allUsers));
     localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('userName', email.split('@')[0]);
+    localStorage.setItem('userName', newUser.name);
     localStorage.setItem('email', email);
-    localStorage.setItem('upline', id); // Links new user to upliner
+    localStorage.setItem('upline', id);
     setMessage('Registered successfully! Welcome to Trubel Perfumes!');
     setTimeout(() => router.push('/buy-perfumes'), 2000);
   };
