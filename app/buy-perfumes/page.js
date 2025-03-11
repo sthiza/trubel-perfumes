@@ -28,15 +28,15 @@ export default function BuyPerfumes() {
     let storedProducts = JSON.parse(localStorage.getItem('products') || '[]');
     if (storedProducts.length === 0) {
       storedProducts = [
-        { id: 1, name: 'Perfume 1', price: 200.00, image: '/Perfume1.jpg', description: 'Fresh scent', category: 'Floral' },
-        { id: 2, name: 'Perfume 2', price: 250.00, image: '/Perfume2.jpg', description: 'Bold aroma', category: 'Woody' },
-        { id: 3, name: 'Perfume 3', price: 300.00, image: '/Perfume3.jpg', description: 'Sweet notes', category: 'Fruity' },
+        { id: 1, name: 'Perfume 1', price: 200.00, image: 'https://via.placeholder.com/150', description: 'Fresh scent', category: 'Floral' },
+        { id: 2, name: 'Perfume 2', price: 250.00, image: 'https://via.placeholder.com/150', description: 'Bold aroma', category: 'Woody' },
+        { id: 3, name: 'Perfume 3', price: 300.00, image: 'https://via.placeholder.com/150', description: 'Sweet notes', category: 'Fruity' },
       ];
       localStorage.setItem('products', JSON.stringify(storedProducts));
     }
     setProducts(storedProducts);
 
-    const storedCart = JSON.parse(localStorage.getItem('cart') || '[]'));
+    const storedCart = JSON.parse(localStorage.getItem('cart') || '[]');
     setCart(storedCart);
     if (!loggedIn) router.push('/login');
   }, [router]);
@@ -87,7 +87,7 @@ export default function BuyPerfumes() {
         form.appendChild(input);
       });
 
-      // Save order on successful payment (simulated here before redirect)
+      // Save order before redirect (simulate success for now)
       const orders = JSON.parse(localStorage.getItem('orders') || '[]');
       const newOrder = {
         id: Date.now(),
