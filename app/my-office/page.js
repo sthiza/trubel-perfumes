@@ -12,47 +12,65 @@ export default function MyOffice() {
   const [level1Recruits, setLevel1Recruits] = useState([]);
   const [monthlySales, setMonthlySales] = useState({ personal: 0, team: 0 });
   const [currentRank, setCurrentRank] = useState('Starter');
-  const [isMounted, setIsMounted] = useState(false); // Add this
+  const [isMounted, setIsMounted] = useState(false);
+  const [error, setError] = useState(null); // Add error state
   const router = useRouter();
 
   useEffect(() => {
-    setIsMounted(true); // Mark as mounted
+    try {
+      console.log('useEffect running...');
+      setIsMounted(true);
 
-    if (typeof window === 'undefined') return; // Guard server-side
+      if (typeof window === 'undefined') {
+        console.log('Server-side render, skipping...');
+        return;
+      }
 
-    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    const name = localStorage.getItem('userName') || 'User';
-    setIsLoggedIn(loggedIn);
-    setUserName(name);
+      const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      console.log('isLoggedIn:', loggedIn);
+      setIsLoggedIn(loggedIn);
+      setUserName(localStorage.getItem('userName') || 'User');
 
-    // Referral link
-    const userId = localStorage.getItem('email') || 'USER' + Math.random().toString(36).substr(2, 9);
-    const isAdmin = userId === 'admin@example.com';
-    const refId = isAdmin ? 'TrubelPerfumes' : userId.replace(/[^a-zA-Z0-9]/g, '');
-    const link = `${window.location.origin}/ref=${refId}`;
-    setReferralLink(link);
+      const userId = localStorage.getItem('email') || 'USER' + Math.random().toString(36).substr(2, 9);
+      const isAdmin = userId === 'admin@example.com';
+      const refId = isAdmin ? 'TrubelPerfumes' : userId.replace(/[^a-zA-Z0-9]/g, '');
+      const link = `${window.location.origin}/ref=${refId}`;
+      console.log('Referral link:', link);
+      setReferralLink(link);
 
-    // Mock Level 1 recruits
-    const mockRecruits = [
-      { id: 'rec1', name: 'JohnDoe', sales: 2000 },
-      { id: 'rec2', name: 'JaneSmith', sales: 1500 },
-    ];
-    setLevel1Recruits(mockRecruits);
+      const mockRecruits = [
+        { id: 'rec1', name: 'JohnDoe', sales: 2000 },
+        { id: 'rec2', name: 'JaneSmith', sales: 1500 },
+      ];
+      setLevel1Recruits(mockRecruits);
 
-    // Mock sales and rank
-    const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-    const personalSales = storedOrders.reduce((sum, order) => sum + parseFloat(order.total.replace('R', '')), 0);
-    const teamSales = mockRecruits.reduce((sum, recruit) => sum + recruit.sales, 0);
-    setMonthlySales({ personal: personalSales, team: teamSales });
+      let personalSales = 0;
+      try {
+        const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+        console.log('Stored orders:', storedOrders);
+        personalSales = storedOrders.reduce((sum, order) => sum + parseFloat(order.total.replace('R', '') || 0), 0);
+      } catch (e) {
+        console.error('Error parsing orders:', e);
+      }
+      const teamSales = mockRecruits.reduce((sum, recruit) => sum + recruit.sales, 0);
+      setMonthlySales({ personal: personalSales, team: teamSales });
 
-    const totalSales = personalSales + teamSales;
-    if (totalSales >= 150000) setCurrentRank('President');
-    else if (totalSales >= 100000) setCurrentRank('Director');
-    else if (totalSales >= 53000) setCurrentRank('Manager');
-    else if (totalSales >= 38000) setCurrentRank('Supervisor');
-    else if (totalSales >= 13500) setCurrentRank('Team Leader');
+      const totalSales = personalSales + teamSales;
+      console.log('Total sales:', totalSales);
+      if (totalSales >= 150000) setCurrentRank('President');
+      else if (totalSales >= 100000) setCurrentRank('Director');
+      else if (totalSales >= 53000) setCurrentRank('Manager');
+      else if (totalSales >= 38000) setCurrentRank('Supervisor');
+      else if (totalSales >= 13500) setCurrentRank('Team Leader');
 
-    if (!loggedIn) router.push('/login');
+      if (!loggedIn) {
+        console.log('Redirecting to login...');
+        router.push('/login');
+      }
+    } catch (err) {
+      console.error('useEffect error:', err);
+      setError(err.message);
+    }
   }, [router]);
 
   const copyToClipboard = () => {
@@ -62,8 +80,17 @@ export default function MyOffice() {
     }
   };
 
-  if (!isMounted) return null; // Prevent render until mounted
-  if (!isLoggedIn) return <p style={{ color: '#ffd700' }}>Redirecting to login...</p>;
+  if (!isMounted) {
+    console.log('Not mounted yet...');
+    return null;
+  }
+  if (error) {
+    return <p style={{ color: 'red' }}>Error: {error}</p>;
+  }
+  if (!isLoggedIn) {
+    console.log('Showing redirect message...');
+    return <p style={{ color: '#ffd700' }}>Redirecting to login...</p>;
+  }
 
   return (
     <div>
@@ -94,13 +121,9 @@ export default function MyOffice() {
           </div>
           <div style={{ color: 'white', background: '#4b0082', padding: '20px', borderRadius: '10px', boxShadow: '0 6px 12px rgba(0,0,0,0.2)', marginBottom: '20px' }}>
             <h3 style={{ color: '#ffd700', marginBottom: '15px' }}>Level 1 Recruits ({level1Recruits.length})</h3>
-            {level1Recruits.length === 0 ? (
-              <p>No recruits yet—share your link!</p>
-            ) : (
-              level1Recruits.map((recruit) => (
-                <p key={recruit.id}>{recruit.name} - R{recruit.sales.toFixed(2)}</p>
-              ))
-            )}
+            {level1Recruits.map((recruit) => (
+              <p key={recruit.id}>{recruit.name} - R{recruit.sales.toFixed(2)}</p>
+            ))}
           </div>
           <div style={{ color: 'white', background: '#4b0082', padding: '20px', borderRadius: '10px', boxShadow: '0 6px 12px rgba(0,0,0,0.2)', marginBottom: '20px' }}>
             <h3 style={{ color: '#ffd700', marginBottom: '15px' }}>Rank Progress</h3>
@@ -108,9 +131,6 @@ export default function MyOffice() {
             <p>Personal Sales (This Month): R{monthlySales.personal.toFixed(2)}</p>
             <p>Team Sales (Level 1): R{monthlySales.team.toFixed(2)}</p>
             <p><strong>Total:</strong> R{(monthlySales.personal + monthlySales.team).toFixed(2)}</p>
-            <p style={{ marginTop: '10px' }}>
-              Next Rank: {currentRank === 'President' ? 'Maxed Out!' : 'Team Leader (R13,500)'}
-            </p>
           </div>
           <div style={{ display: 'flex', gap: '15px' }}>
             <button onClick={() => router.push('/buy-perfumes')} className={styles.button} style={{ padding: '10px 20px', flex: 1 }}>
