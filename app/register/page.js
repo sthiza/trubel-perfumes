@@ -17,7 +17,7 @@ export default function Register() {
     if (typeof window === 'undefined') return;
 
     const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    if (loggedIn) router.push('/my-office'); // Redirect if already logged in
+    if (loggedIn) router.push('/my-office');
   }, [router]);
 
   const handleRegister = () => {
@@ -25,7 +25,7 @@ export default function Register() {
       setMessage('Please fill in all fields!');
       return;
     }
-    const newUser = { email, name: email.split('@')[0], upline: null, sales: 0 }; // No upline for standalone signup
+    const newUser = { email, name: email.split('@')[0], upline: null, sales: 0 };
     const allUsers = JSON.parse(localStorage.getItem('users') || '[]');
     allUsers.push(newUser);
     localStorage.setItem('users', JSON.stringify(allUsers));
@@ -43,24 +43,12 @@ export default function Register() {
       <header className={layoutStyles.header}>
         <h1 className={layoutStyles.headerTitle}>Trubel Perfumes</h1>
       </header>
-      <nav className={layoutStyles.sidebar}>
-        <ul className={layoutStyles.navList}>
-          <li><Link href="/dashboard">Dashboard</Link></li>
-          <li><Link href="/buy-perfumes">Buy Perfumes</Link></li>
-          <li><Link href="/my-orders">My Orders</Link></li>
-          <li><Link href="/my-office">My Office</Link></li>
-          <li><Link href="/team-sales">Team Sales</Link></li>
-          <li><Link href="/team-commissions">Team Commissions</Link></li>
-          <li><Link href="/team-rankings">Team Rankings</Link></li>
-          <li><Link href="/create-ticket">Create Ticket</Link></li>
-        </ul>
-      </nav>
-      <main className={layoutStyles.mainWithSidebar}>
-        <div className={styles.container} style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      <main style={{ minHeight: 'calc(100vh - 60px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className={styles.container} style={{ maxWidth: '500px', margin: '0 20px' }}>
           <h2 className={styles.title}>Sign Up</h2>
           <div style={{ color: 'white', background: '#4b0082', padding: '20px', borderRadius: '10px', boxShadow: '0 6px 12px rgba(0,0,0,0.2)' }}>
             <h3 style={{ color: '#ffd700', marginBottom: '15px' }}>Join Trubel Perfumes</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxWidth: '500px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
               <input
                 type="email"
                 value={email}
