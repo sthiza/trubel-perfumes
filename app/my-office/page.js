@@ -12,9 +12,14 @@ export default function MyOffice() {
   const [level1Recruits, setLevel1Recruits] = useState([]);
   const [monthlySales, setMonthlySales] = useState({ personal: 0, team: 0 });
   const [currentRank, setCurrentRank] = useState('Starter');
+  const [isMounted, setIsMounted] = useState(false); // Add this
   const router = useRouter();
 
   useEffect(() => {
+    setIsMounted(true); // Mark as mounted
+
+    if (typeof window === 'undefined') return; // Guard server-side
+
     const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
     const name = localStorage.getItem('userName') || 'User';
     setIsLoggedIn(loggedIn);
@@ -22,25 +27,24 @@ export default function MyOffice() {
 
     // Referral link
     const userId = localStorage.getItem('email') || 'USER' + Math.random().toString(36).substr(2, 9);
-    const isAdmin = userId === 'admin@example.com'; // Temp admin check
+    const isAdmin = userId === 'admin@example.com';
     const refId = isAdmin ? 'TrubelPerfumes' : userId.replace(/[^a-zA-Z0-9]/g, '');
     const link = `${window.location.origin}/ref=${refId}`;
     setReferralLink(link);
 
-    // Mock Level 1 recruits (replace with real data later)
+    // Mock Level 1 recruits
     const mockRecruits = [
       { id: 'rec1', name: 'JohnDoe', sales: 2000 },
       { id: 'rec2', name: 'JaneSmith', sales: 1500 },
     ];
     setLevel1Recruits(mockRecruits);
 
-    // Mock sales and rank (stubbed)
+    // Mock sales and rank
     const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
     const personalSales = storedOrders.reduce((sum, order) => sum + parseFloat(order.total.replace('R', '')), 0);
     const teamSales = mockRecruits.reduce((sum, recruit) => sum + recruit.sales, 0);
     setMonthlySales({ personal: personalSales, team: teamSales });
 
-    // Simple rank logic (expand later)
     const totalSales = personalSales + teamSales;
     if (totalSales >= 150000) setCurrentRank('President');
     else if (totalSales >= 100000) setCurrentRank('Director');
@@ -52,10 +56,13 @@ export default function MyOffice() {
   }, [router]);
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(referralLink);
-    alert('Referral link copied to clipboard!');
+    if (typeof window !== 'undefined') {
+      navigator.clipboard.writeText(referralLink);
+      alert('Referral link copied to clipboard!');
+    }
   };
 
+  if (!isMounted) return null; // Prevent render until mounted
   if (!isLoggedIn) return <p style={{ color: '#ffd700' }}>Redirecting to login...</p>;
 
   return (
@@ -78,8 +85,6 @@ export default function MyOffice() {
       <main className={layoutStyles.mainWithSidebar}>
         <div className={styles.container} style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <h2 className={styles.title}>My Office</h2>
-          
-          {/* Referral Link */}
           <div style={{ color: 'white', background: '#4b0082', padding: '20px', borderRadius: '10px', boxShadow: '0 6px 12px rgba(0,0,0,0.2)', marginBottom: '20px' }}>
             <h3 style={{ color: '#ffd700', marginBottom: '15px' }}>Your Referral Link</h3>
             <p style={{ margin: '0 0 15px', wordBreak: 'break-all' }}>{referralLink}</p>
@@ -87,8 +92,6 @@ export default function MyOffice() {
               Copy Link
             </button>
           </div>
-
-          {/* Network Snapshot */}
           <div style={{ color: 'white', background: '#4b0082', padding: '20px', borderRadius: '10px', boxShadow: '0 6px 12px rgba(0,0,0,0.2)', marginBottom: '20px' }}>
             <h3 style={{ color: '#ffd700', marginBottom: '15px' }}>Level 1 Recruits ({level1Recruits.length})</h3>
             {level1Recruits.length === 0 ? (
@@ -99,8 +102,6 @@ export default function MyOffice() {
               ))
             )}
           </div>
-
-          {/* Rank Progress */}
           <div style={{ color: 'white', background: '#4b0082', padding: '20px', borderRadius: '10px', boxShadow: '0 6px 12px rgba(0,0,0,0.2)', marginBottom: '20px' }}>
             <h3 style={{ color: '#ffd700', marginBottom: '15px' }}>Rank Progress</h3>
             <p>Current Rank: {currentRank}</p>
@@ -111,8 +112,6 @@ export default function MyOffice() {
               Next Rank: {currentRank === 'President' ? 'Maxed Out!' : 'Team Leader (R13,500)'}
             </p>
           </div>
-
-          {/* Quick Links */}
           <div style={{ display: 'flex', gap: '15px' }}>
             <button onClick={() => router.push('/buy-perfumes')} className={styles.button} style={{ padding: '10px 20px', flex: 1 }}>
               Buy Perfumes
