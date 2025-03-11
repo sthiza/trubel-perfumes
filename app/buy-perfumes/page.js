@@ -1,12 +1,12 @@
 "use client";
-import React, { useState, useEffect } from 'react'; // Added React import
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image'; // Added Image import
+import Image from 'next/image';
 import axios from 'axios';
 import styles from '../styles/auth.module.css';
 import layoutStyles from '../layout.module.css';
-import { FaShoppingCart, FaBox, FaMoneyBillWave, FaUsers, FaTrash } from 'react-icons/fa';
+import { FaShoppingCart, FaBox, FaMoneyBillWave, FaUsers, FaTrash, FaPlus, FaMinus } from 'react-icons/fa';
 
 export default function BuyPerfumes() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -14,7 +14,7 @@ export default function BuyPerfumes() {
   const [isMounted, setIsMounted] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [products, setProducts] = useState([]);
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState([]); // Now stores { product, qty }
   const [address, setAddress] = useState({ street: '', city: '', postalCode: '' });
   const [message, setMessage] = useState('');
   const router = useRouter();
@@ -55,10 +55,32 @@ export default function BuyPerfumes() {
   }, [router]);
 
   const addToCart = (product) => {
-    const updatedCart = [...cart, product];
+    const existingItem = cart.find((item) => item.product.id === product.id);
+    let updatedCart;
+    if (existingItem) {
+      updatedCart = cart.map((item) =>
+        item.product.id === product.id ? { ...item, qty: item.qty + 1 } : item
+      );
+    } else {
+      updatedCart = [...cart, { product, qty: 1 }];
+    }
     setCart(updatedCart);
     localStorage.setItem('cart', JSON.stringify(updatedCart));
     setMessage(`${product.name} added to cart!`);
+    setTimeout(() => setMessage(''), 3000);
+  };
+
+  const updateQuantity = (index, change) => {
+    const updatedCart = cart.map((item, i) => {
+      if (i === index) {
+        const newQty = item.qty + change;
+        return newQty > 0 ? { ...item, qty: newQty } : null;
+      }
+      return item;
+    }).filter(Boolean); // Remove items with qty 0
+    setCart(updatedCart);
+    localStorage.setItem('cart', JSON.stringify(updatedCart));
+    setMessage('Cart updated!');
     setTimeout(() => setMessage(''), 3000);
   };
 
@@ -80,7 +102,7 @@ export default function BuyPerfumes() {
       return;
     }
 
-    const total = cart.reduce((sum, p) => sum + p.price, 0).toFixed(2);
+    const total = cart.reduce((sum, item) => sum + item.product.price * item.qty, 0).toFixed(2);
     try {
       const response = await axios.post('/api/payfast', {
         amount: total,
@@ -225,7 +247,7 @@ export default function BuyPerfumes() {
                 </div>
               </div>
               <div style={{ color: 'white', background: '#4b0082', padding: '20px', borderRadius: '10px', boxShadow: '0 6px 12px rgba(0,0,0,0.2)' }}>
-                <h3 style={{ color: '#ffd700', marginBottom: '20px' }}>Cart ({cart.length})</h3>
+                <h3 style={{ color: '#ffd700', marginBottom: '20px' }}>Cart ({cart.reduce((sum, item) => sum + item.qty, 0)})</h3>
                 {cart.length === 0 ? (
                   <p>Cart is empty</p>
                 ) : (
@@ -237,9 +259,23 @@ export default function BuyPerfumes() {
                       <span style={{ fontWeight: 'bold', color: '#ffd700' }}>Actions</span>
                       {cart.map((item, index) => (
                         <React.Fragment key={index}>
-                          <span>{item.name}</span>
-                          <span>R {item.price.toFixed(2)}</span>
-                          <span>1</span>
+                          <span>{item.product.name}</span>
+                          <span>R {item.product.price.toFixed(2)}</span>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <button
+                              onClick={() => updateQuantity(index, -1)}
+                              style={{ background: '#ffd700', color: '#4b0082', padding: '5px', borderRadius: '5px', border: 'none', cursor: 'pointer', marginRight: '5px' }}
+                            >
+                              <FaMinus />
+                            </button>
+                            <span>{item.qty}</span>
+                            <button
+                              onClick={() => updateQuantity(index, 1)}
+                              style={{ background: '#ffd700', color: '#4b0082', padding: '5px', borderRadius: '5px', border: 'none', cursor: 'pointer', marginLeft: '5px' }}
+                            >
+                              <FaPlus />
+                            </button>
+                          </div>
                           <button
                             onClick={() => removeFromCart(index)}
                             style={{ background: '#ffd700', color: '#4b0082', padding: '5px 10px', borderRadius: '5px', border: 'none', cursor: 'pointer' }}
@@ -249,7 +285,7 @@ export default function BuyPerfumes() {
                         </React.Fragment>
                       ))}
                     </div>
-                    <p style={{ fontSize: '1.2em', textAlign: 'right' }}>Total: R {cart.reduce((sum, item) => sum + item.price, 0).toFixed(2)}</p>
+                    <p style={{ fontSize: '1.2em', textAlign: 'right' }}>Total: R {cart.reduce((sum, item) => sum + item.product.price * item.qty, 0).toFixed(2)}</p>
                     <h3 style={{ color: '#ffd700', marginBottom: '15px' }}>Delivery Address</h3>
                     <input
                       value={address.street}
