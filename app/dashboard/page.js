@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import styles from '../dashboard.module.css';
 import layoutStyles from '../layout.module.css';
 import { FaBox, FaMoneyBillWave, FaUsers, FaArrowRight } from 'react-icons/fa';
+import ChartComponent from '../components/ChartComponent';
 
 export default function Dashboard() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -12,6 +13,12 @@ export default function Dashboard() {
   const [isMounted, setIsMounted] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
+
+  // Dummy chart data
+  const chartData = {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+    values: [50, 75, 60, 90],
+  };
 
   useEffect(() => {
     setIsMounted(true);
@@ -116,6 +123,17 @@ export default function Dashboard() {
                   <h3>Network Size</h3>
                   <p>25 Members</p>
                 </div>
+              </div>
+              {/* Chart */}
+              <div style={{ 
+                marginBottom: '30px', 
+                padding: '20px', 
+                background: '#fff', 
+                borderRadius: '8px', 
+                boxShadow: '0 4px 6px rgba(0,0,0,0.1)' 
+              }}>
+                <h3 style={{ color: '#4b0082', marginBottom: '15px' }}>Sales Overview</h3>
+                <ChartComponent data={chartData} />
               </div>
               {/* Quick Links */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px' }}>
