@@ -1,127 +1,101 @@
 "use client";
-import { useState, useEffect } from 'react';
-import styles from '../dashboard.module.css';
-import layoutStyles from '../layout.module.css';
-import Link from 'next/link';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import styles from '../styles/auth.module.css';
+import layoutStyles from '../layout.module.css';
 
 export default function CreateTicket() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState('User');
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState('');
+  const [submitMessage, setSubmitMessage] = useState('');
   const [isMounted, setIsMounted] = useState(false);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [ticket, setTicket] = useState({ subject: '', message: '', priority: 'Medium' });
   const router = useRouter();
 
   useEffect(() => {
     setIsMounted(true);
+    if (typeof window === 'undefined') return;
+
     const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    const name = localStorage.getItem('userName') || 'User';
     setIsLoggedIn(loggedIn);
-    setUserName(name);
-  }, []);
+    setUserName(localStorage.getItem('userName') || 'User');
 
-  const handleLogout = () => {
-    if (confirm('Are you sure you want to logout?')) {
-      setIsLoggingOut(true);
-      setTimeout(() => {
-        localStorage.setItem('isLoggedIn', 'false');
-        localStorage.removeItem('userName');
-        localStorage.removeItem('orders');
-        localStorage.removeItem('cart');
-        setIsLoggedIn(false);
-        router.push('/');
-      }, 500);
+    if (!loggedIn) router.push('/login');
+  }, [router]);
+
+  const handleSubmit = () => {
+    if (!subject || !message) {
+      setSubmitMessage('Please fill in all fields!');
+      return;
     }
-  };
-
-  const submitTicket = () => {
+    // Mock submit—store in localStorage for now
     const tickets = JSON.parse(localStorage.getItem('tickets') || '[]');
-    const newTicket = { 
-      id: Date.now(), 
-      subject: ticket.subject, 
-      message: ticket.message, 
-      user: userName, 
-      date: new Date().toISOString().split('T')[0], 
-      status: 'Open',
-      priority: ticket.priority 
-    };
-    tickets.push(newTicket);
+    tickets.push({ subject, message, user: userName, date: new Date().toISOString() });
     localStorage.setItem('tickets', JSON.stringify(tickets));
-    setTicket({ subject: '', message: '', priority: 'Medium' });
-    alert('Ticket submitted!');
-    router.push('/my-tickets');
+    setSubmitMessage('Ticket submitted successfully!');
+    setSubject('');
+    setMessage('');
+    setTimeout(() => setSubmitMessage(''), 3000);
   };
 
   if (!isMounted) return null;
+  if (!isLoggedIn) return <p style={{ color: '#ffd700' }}>Redirecting to login...</p>;
 
   return (
     <div>
-      {isLoggedIn ? (
-        <>
-          <header className={`${layoutStyles.header} ${isLoggingOut ? layoutStyles.fadeOut : ''}`}>
-            <h1 className={layoutStyles.headerTitle}>Trubel Perfumes</h1>
-            <div className={layoutStyles.userProfile}>
-              <span className={layoutStyles.userName}>{userName}</span>
-              <button onClick={handleLogout} className={layoutStyles.logoutButton}>Logout</button>
+      <header className={layoutStyles.header}>
+        <h1 className={layoutStyles.headerTitle}>Trubel Perfumes</h1>
+        <div className={layoutStyles.userProfile}>
+          <span className={layoutStyles.userName}>{userName}</span>
+          <button onClick={() => router.push('/')} className={layoutStyles.logoutButton}>Logout</button>
+        </div>
+      </header>
+      <nav className={layoutStyles.sidebar}>
+        <ul className={layoutStyles.navList}>
+          <li><Link href="/dashboard">Dashboard</Link></li>
+          <li><Link href="/buy-perfumes">Buy Perfumes</Link></li>
+          <li><Link href="/my-orders">My Orders</Link></li>
+          <li><Link href="/my-office">My Office</Link></li>
+          <li><Link href="/team-sales">Team Sales</Link></li>
+          <li><Link href="/team-commissions">Team Commissions</Link></li>
+          <li><Link href="/team-rankings">Team Rankings</Link></li>
+          <li><Link href="/create-ticket">Create Ticket</Link></li>
+        </ul>
+      </nav>
+      <main className={layoutStyles.mainWithSidebar}>
+        <div className={styles.container} style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <h2 className={styles.title}>Create Support Ticket</h2>
+          <div style={{ color: 'white', background: '#4b0082', padding: '20px', borderRadius: '10px', boxShadow: '0 6px 12px rgba(0,0,0,0.2)' }}>
+            <h3 style={{ color: '#ffd700', marginBottom: '15px' }}>Submit a Ticket</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <input
+                type="text"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                placeholder="Subject"
+                className={styles.input}
+                style={{ width: '100%', maxWidth: '500px' }}
+              />
+              <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Describe your issue..."
+                className={styles.input}
+                style={{ width: '100%', maxWidth: '500px', minHeight: '150px', resize: 'vertical' }}
+              />
+              <button onClick={handleSubmit} className={styles.button} style={{ width: 'fit-content', padding: '10px 20px' }}>
+                Submit Ticket
+              </button>
+              {submitMessage && <p style={{ color: '#ffd700', marginTop: '10px' }}>{submitMessage}</p>}
             </div>
-          </header>
-          <nav className={`${layoutStyles.sidebar} ${isLoggingOut ? layoutStyles.fadeOut : ''}`}>
-            <ul className={layoutStyles.navList}>
-              <li><Link href="/">Dashboard</Link></li>
-              <li><Link href="/buy-perfumes">Buy Perfume(s)</Link></li>
-              <li><Link href="/my-orders">My Orders</Link></li>
-              <li><Link href="/my-network/first-gen">First Gen</Link></li>
-              <li><Link href="/my-network/gen-2">Gen 2</Link></li>
-              <li><Link href="/my-network/gen-3">Gen 3</Link></li>
-              <li><Link href="/my-network/gen-4">Gen 4</Link></li>
-              <li><Link href="/my-network/gen-5">Gen 5</Link></li>
-              <li><Link href="/my-office">My Office</Link></li>
-              <li><Link href="/team-commissions">Team Commissions</Link></li>
-              <li><Link href="/team-rankings">Team Rankings</Link></li>
-              <li><Link href="/team-sales">Team Sales</Link></li>
-              <li><Link href="/team-recruitment">Team Recruitment</Link></li>
-              <li><Link href="/account-maintenance">Account Maintenance</Link></li>
-              <li><Link href="/account-profile">Account Profile</Link></li>
-              <li><Link href="/bank-account">Bank Account</Link></li>
-              <li><Link href="/miscellaneous">Miscellaneous</Link></li>
-              <li><Link href="/create-ticket">Create Ticket</Link></li>
-              <li><Link href="/my-tickets">My Tickets</Link></li>
-            </ul>
-          </nav>
-          <main className={layoutStyles.mainWithSidebar}>
-            <div className={styles.container}>
-              <h1 className={styles.title}>Create Ticket</h1>
-              <div className={styles.section}>
-                <h2>Submit a Ticket</h2>
-                <input
-                  value={ticket.subject}
-                  onChange={e => setTicket({ ...ticket, subject: e.target.value })}
-                  placeholder="Subject"
-                />
-                <textarea
-                  value={ticket.message}
-                  onChange={e => setTicket({ ...ticket, message: e.target.value })}
-                  placeholder="Message"
-                />
-                <select
-                  value={ticket.priority}
-                  onChange={e => setTicket({ ...ticket, priority: e.target.value })}
-                >
-                  <option value="Low">Low</option>
-                  <option value="Medium">Medium</option>
-                  <option value="High">High</option>
-                </select>
-                <button onClick={submitTicket}>Submit</button>
-              </div>
-            </div>
-          </main>
-        </>
-      ) : (
-        <main className={layoutStyles.mainFull}>
-          <p>Please log in to view this page.</p>
-        </main>
-      )}
+          </div>
+          <button onClick={() => router.push('/my-office')} className={styles.button} style={{ marginTop: '20px' }}>
+            Back to My Office
+          </button>
+        </div>
+      </main>
     </div>
   );
 }
