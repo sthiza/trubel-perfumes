@@ -19,15 +19,17 @@ export default function Home() {
       <h2 className={styles.title}>
         <FaCrown className={styles.icon} /> Trubel Perfumes
       </h2>
-      <p style={{ fontSize: '18px', marginBottom: '20px' }}>
+      <p style={{ fontSize: '22px', marginBottom: '30px' }}> {/* Was 18px, 20px - bigger, more space */}
         Unlock Your Scent Kingdom
       </p>
-      <Link href="/login">
-        <button className={styles.button}>Sign In</button>
-      </Link>
-      <Link href="/register">
-        <button className={styles.button}>Sign Up</button>
-      </Link>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}> {/* Flex for button spacing */}
+        <Link href="/login">
+          <button className={styles.button}>Sign In</button>
+        </Link>
+        <Link href="/register">
+          <button className={styles.button}>Sign Up</button>
+        </Link>
+      </div>
     </div>
   );
 }
