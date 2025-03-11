@@ -1,62 +1,93 @@
 "use client";
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styles from '../styles/auth.module.css';
-import { FaUser, FaLock } from 'react-icons/fa';
+import layoutStyles from '../layout.module.css';
 
 export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(''); // New: Error feedback
+  const [message, setMessage] = useState('');
+  const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (email && password) {
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('userName', email.split('@')[0]);
-      localStorage.setItem('orders', '3'); // New: Match login stats
-      localStorage.setItem('sales', '8500'); // New: Match login stats
-      localStorage.setItem('network', '15'); // New: Match login stats
-      router.push('/dashboard');
-    } else {
-      setError('Please fill in both email and password'); // New: Error message
+  useEffect(() => {
+    setIsMounted(true);
+    if (typeof window === 'undefined') return;
+
+    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    if (loggedIn) router.push('/my-office'); // Redirect if already logged in
+  }, [router]);
+
+  const handleRegister = () => {
+    if (!email || !password) {
+      setMessage('Please fill in all fields!');
+      return;
     }
+    const newUser = { email, name: email.split('@')[0], upline: null, sales: 0 }; // No upline for standalone signup
+    const allUsers = JSON.parse(localStorage.getItem('users') || '[]');
+    allUsers.push(newUser);
+    localStorage.setItem('users', JSON.stringify(allUsers));
+    localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('userName', newUser.name);
+    localStorage.setItem('email', email);
+    setMessage('Registered successfully! Welcome to Trubel Perfumes!');
+    setTimeout(() => router.push('/my-office'), 2000);
   };
 
+  if (!isMounted) return null;
+
   return (
-    <div className={styles.container}>
-      <h2 className={styles.title}>Sign Up</h2>
-      <form onSubmit={handleSubmit}>
-        <div style={{ position: 'relative' }}>
-          <FaUser className={styles.icon} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className={styles.input}
-            style={{ paddingLeft: '30px' }}
-          />
+    <div>
+      <header className={layoutStyles.header}>
+        <h1 className={layoutStyles.headerTitle}>Trubel Perfumes</h1>
+      </header>
+      <nav className={layoutStyles.sidebar}>
+        <ul className={layoutStyles.navList}>
+          <li><Link href="/dashboard">Dashboard</Link></li>
+          <li><Link href="/buy-perfumes">Buy Perfumes</Link></li>
+          <li><Link href="/my-orders">My Orders</Link></li>
+          <li><Link href="/my-office">My Office</Link></li>
+          <li><Link href="/team-sales">Team Sales</Link></li>
+          <li><Link href="/team-commissions">Team Commissions</Link></li>
+          <li><Link href="/team-rankings">Team Rankings</Link></li>
+          <li><Link href="/create-ticket">Create Ticket</Link></li>
+        </ul>
+      </nav>
+      <main className={layoutStyles.mainWithSidebar}>
+        <div className={styles.container} style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <h2 className={styles.title}>Sign Up</h2>
+          <div style={{ color: 'white', background: '#4b0082', padding: '20px', borderRadius: '10px', boxShadow: '0 6px 12px rgba(0,0,0,0.2)' }}>
+            <h3 style={{ color: '#ffd700', marginBottom: '15px' }}>Join Trubel Perfumes</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxWidth: '500px' }}>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email"
+                className={styles.input}
+                style={{ width: '100%' }}
+              />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+                className={styles.input}
+                style={{ width: '100%' }}
+              />
+              <button onClick={handleRegister} className={styles.button} style={{ width: 'fit-content', padding: '10px 20px' }}>
+                Sign Up
+              </button>
+              {message && <p style={{ color: '#ffd700', marginTop: '10px' }}>{message}</p>}
+            </div>
+            <p style={{ marginTop: '15px' }}>
+              Already have an account? <Link href="/login" style={{ color: '#ffd700' }}>Sign In</Link>
+            </p>
+          </div>
         </div>
-        <div style={{ position: 'relative' }}>
-          <FaLock className={styles.icon} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className={styles.input}
-            style={{ paddingLeft: '30px' }}
-          />
-        </div>
-        {error && <p style={{ color: '#ffd700', margin: '10px 0' }}>{error}</p>} {/* New: Error display */}
-        <button type="submit" className={styles.button}>Sign Up</button>
-      </form>
-      <p>
-        <Link href="/login" className={styles.link}>Sign In</Link>
-      </p>
+      </main>
     </div>
   );
 }
