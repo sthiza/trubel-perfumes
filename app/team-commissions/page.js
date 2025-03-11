@@ -1,156 +1,94 @@
 "use client";
-import { useState, useEffect } from 'react';
-import styles from '../dashboard.module.css';
-import layoutStyles from '../layout.module.css';
-import Link from 'next/link';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getNetworkData } from '../networkUtils';
+import Link from 'next/link';
+import styles from '../styles/auth.module.css';
+import layoutStyles from '../layout.module.css';
 
 export default function TeamCommissions() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState('User');
-  const [isSuperUser, setIsSuperUser] = useState(false);
+  const [teamSales, setTeamSales] = useState({ level1: 0, level2: 0, level3: 0, level4: 0, level5: 0 });
+  const [commissions, setCommissions] = useState({ level1: 0, level2: 0, level3: 0, level4: 0, level5: 0 });
   const [isMounted, setIsMounted] = useState(false);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [networkData, setNetworkData] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
     setIsMounted(true);
+    if (typeof window === 'undefined') return;
+
     const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    const name = localStorage.getItem('userName') || 'User';
     setIsLoggedIn(loggedIn);
-    setUserName(name);
-    setIsSuperUser(name === 'Lwakhe Sangweni'); // Super User check
-    const { networkData } = getNetworkData();
-    setNetworkData(networkData || []);
-  }, []);
+    setUserName(localStorage.getItem('userName') || 'User');
 
-  const handleLogout = () => {
-    if (confirm('Are you sure you want to logout?')) {
-      setIsLoggingOut(true);
-      setTimeout(() => {
-        localStorage.setItem('isLoggedIn', 'false');
-        localStorage.removeItem('userName');
-        localStorage.removeItem('orders');
-        localStorage.removeItem('cart');
-        setIsLoggedIn(false);
-        router.push('/');
-      }, 500);
-    }
-  };
+    const userId = localStorage.getItem('email') || 'USER' + Math.random().toString(36).substr(2, 9);
+    const refId = userId === 'admin@example.com' ? 'TrubelPerfumes' : userId.replace(/[^a-zA-Z0-9]/g, '');
 
-  const calculateCommission = (sales) => {
-    const amount = parseFloat(sales.slice(1) || 0);
-    return (amount * 0.1).toFixed(2); // 10% commission
-  };
+    const allUsers = JSON.parse(localStorage.getItem('users') || '[]');
+    const recruits = allUsers.filter(user => user.upline === refId);
+    const level1Sales = recruits.reduce((sum, user) => sum + (user.sales || 0), 0);
 
-  const exportPayslip = (recruit) => {
-    const csvRows = [
-      ['Name', 'Sales', 'Commission', 'Date'],
-      [recruit.name, recruit.sales, `R${calculateCommission(recruit.sales)}`, recruit.joined],
-    ];
-    const csvContent = csvRows.map(row => row.join(',')).join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `payslip_${recruit.name}_${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
-  };
+    const sales = {
+      level1: level1Sales,
+      level2: 3000, // Mock L2-5
+      level3: 2000,
+      level4: 1000,
+      level5: 500,
+    };
+    setTeamSales(sales);
 
-  const exportAllPayslips = () => {
-    const allRecruits = networkData.flatMap(gen => gen.recruits);
-    const csvRows = [
-      ['Name', 'Sales', 'Commission', 'Date'],
-      ...allRecruits.map(recruit => [
-        recruit.name,
-        recruit.sales,
-        `R${calculateCommission(recruit.sales)}`,
-        recruit.joined,
-      ]),
-    ];
-    const csvContent = csvRows.map(row => row.join(',')).join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `all_payslips_${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
-  };
+    setCommissions({
+      level1: sales.level1 * 0.20, // 20%
+      level2: sales.level2 * 0.10, // 10%
+      level3: sales.level3 * 0.04, // 4%
+      level4: sales.level4 * 0.01, // 1%
+      level5: 0, // No commission per your spec
+    });
+
+    if (!loggedIn) router.push('/login');
+  }, [router]);
 
   if (!isMounted) return null;
+  if (!isLoggedIn) return <p style={{ color: '#ffd700' }}>Redirecting to login...</p>;
+
+  const totalCommission = Object.values(commissions).reduce((sum, val) => sum + val, 0);
 
   return (
-    <>
-      {isLoggedIn ? (
-        <>
-          <header className={`${layoutStyles.header} ${isLoggingOut ? layoutStyles.fadeOut : ''}`}>
-            <h1 className={layoutStyles.headerTitle}>Trubel Perfumes</h1>
-            <div className={layoutStyles.userProfile}>
-              <span className={layoutStyles.userName}>{userName}</span>
-              <button onClick={handleLogout} className={layoutStyles.logoutButton}>Logout</button>
-            </div>
-          </header>
-          <nav className={`${layoutStyles.sidebar} ${isLoggingOut ? layoutStyles.fadeOut : ''}`}>
-            <ul className={layoutStyles.navList}>
-              <li><Link href="/">Dashboard</Link></li>
-              <li><Link href="/buy-perfumes">Buy Perfume(s)</Link></li>
-              <li><Link href="/my-orders">My Orders</Link></li>
-              <li><Link href="/my-network/first-gen">First Gen</Link></li>
-              <li><Link href="/my-network/gen-2">Gen 2</Link></li>
-              <li><Link href="/my-network/gen-3">Gen 3</Link></li>
-              <li><Link href="/my-network/gen-4">Gen 4</Link></li>
-              <li><Link href="/my-network/gen-5">Gen 5</Link></li>
-              <li><Link href="/my-office">My Office</Link></li>
-              <li><Link href="/team-commissions">Team Commissions</Link></li>
-              <li><Link href="/team-rankings">Team Rankings</Link></li>
-              <li><Link href="/team-sales">Team Sales</Link></li>
-              <li><Link href="/team-recruitment">Team Recruitment</Link></li>
-              <li><Link href="/account-maintenance">Account Maintenance</Link></li>
-              <li><Link href="/account-profile">Account Profile</Link></li>
-              <li><Link href="/bank-account">Bank Account</Link></li>
-              <li><Link href="/miscellaneous">Miscellaneous</Link></li>
-              <li><Link href="/create-ticket">Create Ticket</Link></li>
-              <li><Link href="/my-tickets">My Tickets</Link></li>
-            </ul>
-          </nav>
-          <main className={layoutStyles.mainWithSidebar}>
-            <div className={styles.container}>
-              <h1 className={styles.title}>Team Commissions</h1>
-              {isSuperUser ? (
-                <>
-                  <button onClick={exportAllPayslips} className={styles.exportAllButton}>
-                    Export All Payslips
-                  </button>
-                  <div className={styles.commissionList}>
-                    {networkData.flatMap(gen => gen.recruits).map((recruit, index) => (
-                      <div key={index} className={styles.commissionCard}>
-                        <p><strong>Name:</strong> {recruit.name}</p>
-                        <p><strong>Sales:</strong> {recruit.sales}</p>
-                        <p><strong>Commission (10%):</strong> R{calculateCommission(recruit.sales)}</p>
-                        <p><strong>Joined:</strong> {recruit.joined}</p>
-                        <button
-                          onClick={() => exportPayslip(recruit)}
-                          className={styles.exportButton}
-                        >
-                          Export Payslip
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <p className={styles.restricted}>
-                  Payslip generation is restricted to the Super User. Please contact Lwakhe Sangweni for assistance.
-                </p>
-              )}
-            </div>
-          </main>
-        </>
-      ) : (
-        <main className={layoutStyles.mainFull}>
-          <p>Please log in to view this page.</p>
-        </main>
-      )}
-    </>
+    <div>
+      <header className={layoutStyles.header}>
+        <h1 className={layoutStyles.headerTitle}>Trubel Perfumes</h1>
+        <div className={layoutStyles.userProfile}>
+          <span className={layoutStyles.userName}>{userName}</span>
+          <button onClick={() => router.push('/')} className={layoutStyles.logoutButton}>Logout</button>
+        </div>
+      </header>
+      <nav className={layoutStyles.sidebar}>
+        <ul className={layoutStyles.navList}>
+          <li><Link href="/dashboard">Dashboard</Link></li>
+          <li><Link href="/buy-perfumes">Buy Perfumes</Link></li>
+          <li><Link href="/my-orders">My Orders</Link></li>
+          <li><Link href="/my-office">My Office</Link></li>
+          <li><Link href="/team-sales">Team Sales</Link></li>
+          <li><Link href="/team-commissions">Team Commissions</Link></li>
+        </ul>
+      </nav>
+      <main className={layoutStyles.mainWithSidebar}>
+        <div className={styles.container} style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <h2 className={styles.title}>Team Commissions</h2>
+          <div style={{ color: 'white', background: '#4b0082', padding: '20px', borderRadius: '10px', boxShadow: '0 6px 12px rgba(0,0,0,0.2)' }}>
+            <h3 style={{ color: '#ffd700', marginBottom: '15px' }}>This Month’s Commissions (Paid 15th)</h3>
+            <p>Level 1 (20%): R{commissions.level1.toFixed(2)} (Sales: R{teamSales.level1.toFixed(2)})</p>
+            <p>Level 2 (10%): R{commissions.level2.toFixed(2)} (Sales: R{teamSales.level2.toFixed(2)})</p>
+            <p>Level 3 (4%): R{commissions.level3.toFixed(2)} (Sales: R{teamSales.level3.toFixed(2)})</p>
+            <p>Level 4 (1%): R{commissions.level4.toFixed(2)} (Sales: R{teamSales.level4.toFixed(2)})</p>
+            <p>Level 5 (0%): R{commissions.level5.toFixed(2)} (Sales: R{teamSales.level5.toFixed(2)})</p>
+            <p><strong>Total Commission:</strong> R{totalCommission.toFixed(2)}</p>
+          </div>
+          <button onClick={() => router.push('/my-office')} className={styles.button} style={{ marginTop: '20px' }}>
+            Back to My Office
+          </button>
+        </div>
+      </main>
+    </div>
   );
 }
