@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import axios from 'axios';
+import Footer from '../components/Footer'; // Add this
 import styles from '../styles/auth.module.css';
 import layoutStyles from '../layout.module.css';
 import { FaShoppingCart, FaBox, FaMoneyBillWave, FaUsers, FaTrash, FaPlus, FaMinus } from 'react-icons/fa';
@@ -21,6 +22,8 @@ export default function BuyPerfumes() {
 
   useEffect(() => {
     setIsMounted(true);
+    if (typeof window === 'undefined') return;
+
     const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
     const name = localStorage.getItem('userName') || 'User';
     setIsLoggedIn(loggedIn);
@@ -77,7 +80,7 @@ export default function BuyPerfumes() {
         return newQty > 0 ? { ...item, qty: newQty } : null;
       }
       return item;
-    }).filter(Boolean); // Remove items with qty 0
+    }).filter(Boolean);
     setCart(updatedCart);
     localStorage.setItem('cart', JSON.stringify(updatedCart));
     setMessage('Cart updated!');
@@ -171,7 +174,7 @@ export default function BuyPerfumes() {
   if (!isMounted) return null;
 
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       {isLoggedIn ? (
         <>
           <header className={`${layoutStyles.header} ${isLoggingOut ? layoutStyles.fadeOut : ''}`}>
@@ -202,9 +205,10 @@ export default function BuyPerfumes() {
               <li><Link href="/miscellaneous">Miscellaneous</Link></li>
               <li><Link href="/create-ticket">Create Ticket</Link></li>
               <li><Link href="/my-tickets">My Tickets</Link></li>
+              <li><Link href="/admin-upload">Admin Upload</Link></li> {/* Add this */}
             </ul>
           </nav>
-          <main className={layoutStyles.mainWithSidebar}>
+          <main className={layoutStyles.mainWithSidebar} style={{ flex: '1' }}>
             <div className={styles.container} style={{ maxWidth: '1200px', margin: '0 auto' }}>
               <h2 className={styles.title}>Buy Expensive Perfumes</h2>
               <div style={{ marginBottom: '40px' }}>
@@ -324,9 +328,10 @@ export default function BuyPerfumes() {
               </button>
             </div>
           </main>
+          <Footer /> {/* Add this */}
         </>
       ) : (
-        <main className={layoutStyles.mainFull}>
+        <main className={layoutStyles.mainFull} style={{ flex: '1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <p style={{ color: '#ffd700' }}>Redirecting to login...</p>
         </main>
       )}
