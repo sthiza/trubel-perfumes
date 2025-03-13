@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation'; // Already imported
 import { Suspense } from 'react';
 import Link from 'next/link';
 import Footer from '../components/Footer';
@@ -12,8 +12,7 @@ function RegisterContent() {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const router = useRouter();
-  const { useSearchParams } = require('next/navigation');
-  const searchParams = useSearchParams();
+  const searchParams = useSearchParams(); // Use imported hook
   const upline = searchParams.get('ref') || null;
 
   useEffect(() => {
