@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  name      String
+  password  String
+  upline    String?
+  sales     Float     @default(0)
+  role      String    @default("User")
+  createdAt DateTime  @default(now())
+  payslips  Payslip[] // Relation to Payslip
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  price       Float
+  imageUrl    String
+  description String?
+  category    String?
+  createdAt   DateTime @default(now())
+}
+
+model Order {
+  id        String   @id @default(uuid())
+  userId    String
+  items     Json
+  total     Float
+  address   Json
+  status    String   @default("Pending")
+  createdAt DateTime @default(now())
+}
+
+model Payslip {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  periodStart DateTime
+  periodEnd   DateTime
+  sales       Float
+  earnings    Float
+  createdAt   DateTime @default(now())
+}
