@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
+const SALT_ROUNDS = 10;
 
 export async function POST(request) {
-  const { email, password, upline } = await request.json();
+  const { email, password, upline, role = 'User' } = await request.json();
 
   if (!email || !password) {
     return NextResponse.json({ message: 'Please fill in all fields!' }, { status: 400 });
@@ -24,14 +26,16 @@ export async function POST(request) {
       return NextResponse.json({ message: 'Email already registered! Please log in.' }, { status: 409 });
     }
 
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
     const newUser = await prisma.user.create({
       data: {
         email,
-        password, // TODO: Hash this later!
+        password: hashedPassword,
         name: email.split('@')[0],
         upline: upline || null,
         sales: 0,
-        role: 'User',
+        role: role || 'User',
       },
     });
 
